@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum LessonLevel {
+  INTRO
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ProgressStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum SyncStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+model User {
+  id            String           @id @default(cuid())
+  email         String           @unique
+  name          String
+  passwordHash  String
+  role          Role             @default(STUDENT)
+  createdAt     DateTime         @default(now())
+  enrollments   Enrollment[]
+  coursesTaught Course[]         @relation("CourseInstructor")
+  progress      LessonProgress[]
+}
+
+model Course {
+  id           String       @id @default(cuid())
+  name         String
+  code         String       @unique
+  instructorId String
+  instructor   User         @relation("CourseInstructor", fields: [instructorId], references: [id])
+  enrollments  Enrollment[]
+  assignments  Assignment[]
+  createdAt    DateTime     @default(now())
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  courseId  String
+  userId    String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([courseId, userId])
+}
+
+model Lesson {
+  id               String           @id @default(cuid())
+  slug             String           @unique
+  title            String
+  summary          String
+  level            LessonLevel      @default(INTRO)
+  estimatedMinutes Int
+  sortOrder        Int
+  capstone         Boolean          @default(false)
+  content          Json
+  assignments      Assignment[]
+  progress         LessonProgress[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model Assignment {
+  id        String    @id @default(cuid())
+  courseId  String
+  lessonId  String
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  dueAt     DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([courseId, lessonId])
+}
+
+model LessonProgress {
+  id          String           @id @default(cuid())
+  userId      String
+  lessonId    String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status      ProgressStatus   @default(IN_PROGRESS)
+  score       Int              @default(0)
+  maxScore    Int              @default(0)
+  startedAt   DateTime         @default(now())
+  completedAt DateTime?
+  submissions StepSubmission[]
+
+  @@unique([userId, lessonId])
+}
+
+model StepSubmission {
+  id             String         @id @default(cuid())
+  progressId     String
+  progress       LessonProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  stepId         String
+  stepType       String
+  correct        Boolean?
+  pointsAwarded  Int            @default(0)
+  pointsPossible Int            @default(0)
+  tries          Int            @default(1)
+  answer         Json?
+  textResponse   String?
+  completedAt    DateTime       @default(now())
+
+  @@unique([progressId, stepId])
+}
+
+model Series {
+  id           String        @id
+  name         String
+  category     String
+  kind         String
+  frequency    String
+  seasonal     String
+  units        String
+  nominal      Boolean
+  canGrowth    Boolean
+  source       String
+  description  String
+  hidden       Boolean       @default(false)
+  lastSyncedAt DateTime?
+  lastSource   String?
+  observations Observation[]
+}
+
+model Observation {
+  seriesId String
+  series   Series   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  date     DateTime @db.Date
+  value    Float?
+
+  @@id([seriesId, date])
+}
+
+model SyncRun {
+  id               String     @id @default(cuid())
+  startedAt        DateTime   @default(now())
+  finishedAt       DateTime?
+  status           SyncStatus @default(RUNNING)
+  source           String
+  seriesCount      Int        @default(0)
+  observationCount Int        @default(0)
+  message          String?
+}
