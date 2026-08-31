@@ -4,7 +4,7 @@
  * The shared interactive chart builder. Used full-size on /dashboard and in
  * compact mode inside lesson TASK steps and statsbook figures.
  */
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   TRANSFORM_LABELS,
   type TransformType,
@@ -41,7 +41,7 @@ export function ChartToolCore({
 }) {
   const catalog = useCatalog();
   const bands = useRecessionBands(value.recessions);
-  const { panels, loading } = useSeriesData(value);
+  const { panels, loading, errors } = useSeriesData(value);
 
   const allSeries: CatalogSeries[] = useMemo(
     () => (catalog ? catalog.flatMap((c) => c.series) : []),
@@ -57,6 +57,10 @@ export function ChartToolCore({
       if (value.series.length >= 8) return;
       const def = byId.get(id);
       if (!def) return;
+      // Adding the same series twice at LEVEL would render duplicate lines;
+      // to compare two transforms of one series, add it once and duplicate
+      // via a different transform instead.
+      if (value.series.some((s) => s.id === id && s.transform === "LEVEL")) return;
       onChange({
         ...value,
         series: [...value.series, { id, transform: "LEVEL" }],
@@ -189,33 +193,24 @@ export function ChartToolCore({
         />
         Recession shading
       </label>
-      <label>
-        From
-        <input
-          type="number"
-          min={1850}
-          max={2030}
-          placeholder="1947"
-          value={value.from ?? ""}
-          onChange={(e) =>
-            onChange({ ...value, from: e.target.value || undefined })
-          }
-          aria-label="Start year"
-        />
-      </label>
-      <label>
-        To
-        <input
-          type="number"
-          min={1850}
-          max={2030}
-          placeholder="now"
-          value={value.to ?? ""}
-          onChange={(e) => onChange({ ...value, to: e.target.value || undefined })}
-          aria-label="End year"
-        />
-      </label>
+      <YearInput
+        label="From"
+        placeholder="1947"
+        value={value.from}
+        onCommit={(from) => onChange({ ...value, from })}
+      />
+      <YearInput
+        label="To"
+        placeholder="now"
+        value={value.to}
+        onCommit={(to) => onChange({ ...value, to })}
+      />
       {loading && <span className="muted small">Loading data…</span>}
+      {errors.length > 0 && (
+        <span className="error-text" role="alert">
+          Some data failed to load: {errors[errors.length - 1]}
+        </span>
+      )}
       {extraControls}
     </div>
   );
@@ -266,6 +261,46 @@ export function ChartToolCore({
         {chart}
       </div>
     </div>
+  );
+}
+
+/**
+ * Year input that only commits complete 4-digit years (or empty) to chart
+ * state — partial keystrokes must not trigger fetches or bogus date filters.
+ */
+function YearInput({
+  label,
+  placeholder,
+  value,
+  onCommit,
+}: {
+  label: string;
+  placeholder: string;
+  value: string | undefined;
+  onCommit: (year: string | undefined) => void;
+}) {
+  const [draft, setDraft] = useState(value ?? "");
+  useEffect(() => {
+    setDraft(value ?? "");
+  }, [value]);
+  return (
+    <label>
+      {label}
+      <input
+        type="number"
+        min={1850}
+        max={2030}
+        placeholder={placeholder}
+        value={draft}
+        onChange={(e) => {
+          const next = e.target.value;
+          setDraft(next);
+          if (next === "") onCommit(undefined);
+          else if (/^\d{4}$/.test(next)) onCommit(next);
+        }}
+        aria-label={`${label === "From" ? "Start" : "End"} year`}
+      />
+    </label>
   );
 }
 

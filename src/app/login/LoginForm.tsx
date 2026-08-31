@@ -23,7 +23,9 @@ export function LoginForm() {
     setBusy(false);
     if (res.ok) {
       const next = params.get("next");
-      router.push(next && next.startsWith("/") ? next : "/");
+      // Same-origin paths only: "//host" is protocol-relative (open redirect).
+      const safe = next && next.startsWith("/") && !next.startsWith("//");
+      router.push(safe ? next : "/");
       router.refresh();
     } else {
       const body = await res.json().catch(() => null);

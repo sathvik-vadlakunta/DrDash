@@ -212,6 +212,23 @@ export const SERIES_CATALOG: SeriesDef[] = [
   },
   {
     id: "A023RC1A027NBEA",
+    name: "Gross National Product",
+    category: "output-income",
+    kind: "LEVEL_CURRENCY",
+    frequency: "ANNUAL",
+    seasonal: "NSA",
+    units: "Billions of dollars",
+    nominal: true,
+    canGrowth: true,
+    source: "FRED",
+    dollarScale: B,
+    description:
+      "Output produced by U.S. residents wherever located — GDP plus net income from abroad. Statsbook Tables 4 and 5.",
+    notes:
+      "Verified against the data: this BEA series is GNP (1929 = $104.6B), not NNP as an earlier draft labeled it.",
+  },
+  {
+    id: "A027RC1A027NBEA",
     name: "Net National Product",
     category: "output-income",
     kind: "LEVEL_CURRENCY",
@@ -224,6 +241,21 @@ export const SERIES_CATALOG: SeriesDef[] = [
     dollarScale: B,
     description:
       "Gross national product minus consumption of fixed capital (depreciation). Statsbook Table 4.",
+  },
+  {
+    id: "PI",
+    name: "Personal Income",
+    category: "output-income",
+    kind: "LEVEL_CURRENCY",
+    frequency: "MONTHLY",
+    seasonal: "SAAR",
+    units: "Billions of dollars, SAAR",
+    nominal: true,
+    canGrowth: true,
+    source: "FRED",
+    dollarScale: B,
+    description:
+      "Income received by persons from all sources — wages, proprietors' income, rents, dividends, interest, and transfers. Statsbook Tables 4 and 6.",
   },
   {
     id: "A032RC1A027NBEA",
@@ -616,13 +648,15 @@ export const SERIES_CATALOG: SeriesDef[] = [
     kind: "LEVEL_CURRENCY",
     frequency: "MONTHLY",
     seasonal: "NSA",
-    units: "Millions of dollars",
+    units: "Billions of dollars",
     nominal: true,
     canGrowth: true,
     source: "FRED",
-    dollarScale: M,
+    dollarScale: B,
     description:
       "Currency in circulation plus bank reserves at the Fed — the money the central bank directly creates.",
+    notes:
+      "FRED serves this series in billions (verified: Dec 2008 = 1,666.4, the post-Lehman ~$1.67T base), despite older documentation citing millions.",
   },
 
   // ────────────────────────── Government Finance ─────────────────────────
@@ -790,6 +824,21 @@ export const SERIES_CATALOG: SeriesDef[] = [
     dollarScale: B,
     description:
       "Federal nondefense consumption expenditures and gross investment. Statsbook Table 15.",
+  },
+  {
+    id: "W014RC1Q027SBEA",
+    name: "Federal Transfer Payments",
+    category: "government-finance",
+    kind: "LEVEL_CURRENCY",
+    frequency: "QUARTERLY",
+    seasonal: "SAAR",
+    units: "Billions of dollars, SAAR",
+    nominal: true,
+    canGrowth: true,
+    source: "FRED",
+    dollarScale: B,
+    description:
+      "Federal current transfer payments — Social Security, Medicare, Medicaid, and other mandatory benefit programs. Statsbook Table 15.",
   },
   {
     id: "A091RC1Q027SBEA",

@@ -100,14 +100,24 @@ export function decodeChartState(
     if (!def) continue;
     const transform = code ? CODE_TO_TRANSFORM[code] : "LEVEL";
     if (!transform || !transformAllowed(def, transform)) continue;
-    if (series.some((s) => s.id === id && s.transform === transform)) continue;
     if (series.length >= 8) break; // sanity cap for chart legibility
     if (transform === "PCT_OF") {
       const denomId = denom && SERIES_BY_ID.has(denom) ? denom : DEFAULT_DENOMINATOR_ID;
       const denomDef = SERIES_BY_ID.get(denomId);
       if (!denomDef || !isDollarAggregate(denomDef)) continue;
+      // Dedupe on the full identity — the same series as a share of two
+      // different denominators is a legitimate chart.
+      if (
+        series.some(
+          (s) =>
+            s.id === id && s.transform === transform && s.denominatorId === denomId
+        )
+      ) {
+        continue;
+      }
       series.push({ id, transform, denominatorId: denomId });
     } else {
+      if (series.some((s) => s.id === id && s.transform === transform)) continue;
       series.push({ id, transform });
     }
   }

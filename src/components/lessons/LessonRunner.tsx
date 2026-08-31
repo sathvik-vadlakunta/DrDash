@@ -84,14 +84,19 @@ export function LessonRunner({
     stepId: string,
     payload: Record<string, unknown>
   ): Promise<SubmitResponse> {
-    const res = await fetch(`/api/v1/lessons/${slug}/submit`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ stepId, ...payload }),
-    });
-    const body: SubmitResponse = await res.json().catch(() => ({
-      error: "Network error",
-    }));
+    // Never throws: callers rely on this resolving so their busy flags reset
+    // even when the network drops mid-request.
+    let body: SubmitResponse;
+    try {
+      const res = await fetch(`/api/v1/lessons/${slug}/submit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stepId, ...payload }),
+      });
+      body = await res.json();
+    } catch {
+      return { error: "Network error — check your connection and try again." };
+    }
     if (typeof body.score === "number") setScore(body.score);
     if (body.completed) setCompleted(true);
     return body;

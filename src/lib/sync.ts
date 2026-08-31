@@ -63,21 +63,28 @@ async function replaceObservations(
   obs: Obs[],
   source: "FRED" | "OFFLINE" | "COMPUTED"
 ) {
-  await prisma.observation.deleteMany({ where: { seriesId } });
+  // One transaction per series: a failure mid-write must never leave a series
+  // emptied or half-loaded.
   const BATCH = 2000;
+  const ops = [prisma.observation.deleteMany({ where: { seriesId } })];
   for (let i = 0; i < obs.length; i += BATCH) {
-    await prisma.observation.createMany({
-      data: obs.slice(i, i + BATCH).map((o) => ({
-        seriesId,
-        date: new Date(`${o.date}T00:00:00.000Z`),
-        value: o.value,
-      })),
-    });
+    ops.push(
+      prisma.observation.createMany({
+        data: obs.slice(i, i + BATCH).map((o) => ({
+          seriesId,
+          date: new Date(`${o.date}T00:00:00.000Z`),
+          value: o.value,
+        })),
+      })
+    );
   }
-  await prisma.series.update({
-    where: { id: seriesId },
-    data: { lastSyncedAt: new Date(), lastSource: source },
-  });
+  await prisma.$transaction([
+    ...ops,
+    prisma.series.update({
+      where: { id: seriesId },
+      data: { lastSyncedAt: new Date(), lastSource: source },
+    }),
+  ]);
 }
 
 async function loadStoredObs(prisma: PrismaClient, seriesId: string): Promise<Obs[]> {
@@ -111,6 +118,8 @@ export async function syncAllSeries(
   const outcomes: SeriesSyncOutcome[] = [];
   let observationCount = 0;
 
+  try {
+
   // Ensure catalog metadata exists for everything first (charts need it even
   // if a single series fails to load data).
   for (const def of SERIES_CATALOG) {
@@ -140,10 +149,16 @@ export async function syncAllSeries(
     }
 
     if (obs) {
-      await replaceObservations(prisma, def.id, obs, source);
-      outcomes.push({ id: def.id, source, observations: obs.length });
-      observationCount += obs.length;
-      log(`${def.id}: ${obs.length} observations (${source})`);
+      try {
+        await replaceObservations(prisma, def.id, obs, source);
+        outcomes.push({ id: def.id, source, observations: obs.length });
+        observationCount += obs.length;
+        log(`${def.id}: ${obs.length} observations (${source})`);
+      } catch (err) {
+        const writeError = err instanceof Error ? err.message : String(err);
+        outcomes.push({ id: def.id, source, observations: 0, error: writeError });
+        log(`${def.id}: WRITE FAILED — ${writeError}`);
+      }
     } else {
       outcomes.push({ id: def.id, source, observations: 0, error });
       log(`${def.id}: FAILED — ${error}`);
@@ -197,6 +212,22 @@ export async function syncAllSeries(
     observationCount,
     outcomes,
   };
+  } catch (err) {
+    // Never leave a run stuck in RUNNING: finalize as FAILED, then rethrow.
+    await prisma.syncRun
+      .update({
+        where: { id: run.id },
+        data: {
+          finishedAt: new Date(),
+          status: "FAILED",
+          seriesCount: outcomes.filter((o) => !o.error).length,
+          observationCount,
+          message: `Aborted: ${err instanceof Error ? err.message : String(err)}`,
+        },
+      })
+      .catch(() => {});
+    throw err;
+  }
 }
 
 /** Expected count of series after a full sync (FRED + constructed). */

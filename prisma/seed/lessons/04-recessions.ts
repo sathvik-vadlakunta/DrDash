@@ -99,7 +99,7 @@ export const LESSON_04: LessonSeed = {
         points: 10,
         title: "The misery index",
         body:
-          "Clear your chart and plot the Misery Index (DD_MISERY) — economist Arthur Okun's shorthand for how bad the economy feels to ordinary households. It is simply the unemployment rate plus the CPI inflation rate, so it rises when either jobs are scarce or prices are surging.\n\nThe worst sustained stretch is unmistakable: 1980, when the index sat above 20 for most of the year and peaked near 22 in May — roughly 7.5% unemployment stacked on top of 14% inflation. That combination of a stagnating economy and runaway prices is called stagflation, and it is why the late-1970s era looms so large in economic memory. For comparison, the index only reached about 10 in 2009 (high unemployment, low inflation) and about 15 in April 2020 (record unemployment, near-zero inflation).",
+          "Clear your chart and plot the Misery Index (DD_MISERY) — economist Arthur Okun's shorthand for how bad the economy feels to ordinary households. It is simply the unemployment rate plus the CPI inflation rate, so it rises when either jobs are scarce or prices are surging.\n\nThe worst sustained stretch is unmistakable: 1980, when the index sat above 20 for most of the year and peaked near 22 in May — roughly 7.5% unemployment stacked on top of 14% inflation. That combination of a stagnating economy and runaway prices is called stagflation, and it is why the late-1970s era looms so large in economic memory. For comparison, the index peaked around 12.8 in the Great Recession era (high unemployment, modest inflation) and about 15 in April 2020 (record unemployment, near-zero inflation).",
         hint: "Open Dr. Dash Constructed → Misery Index and keep its transform on Level.",
         target: {
           series: [{ id: "DD_MISERY", transform: "LEVEL" }],
@@ -121,7 +121,7 @@ export const LESSON_04: LessonSeed = {
         ],
         correctIndex: 0,
         explanation:
-          "The misery index peaked near 22 in mid-1980 and stayed above 20 for most of that year, because stagflation delivered high unemployment and double-digit inflation at the same time. In 2009 and 2020 unemployment was high but inflation was low, so the index topped out around 10 and 15 respectively.",
+          "The misery index peaked near 22 in mid-1980 and stayed above 20 for most of that year, because stagflation delivered high unemployment and double-digit inflation at the same time. In the Great Recession era and in 2020 unemployment was high but inflation was low, so the index topped out around 12.8 and 15 respectively.",
         sources: ["DD_MISERY", "UNRATE"],
       },
     ],

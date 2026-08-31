@@ -65,7 +65,7 @@ export const LESSON_11: LessonSeed = {
         options: ["Less", "Equally", "More", "No meaningful change"],
         correctIndex: 2,
         explanation:
-          "Exports and imports have each roughly tripled as a share of GDP since 1960 — from about 5% to roughly 12% and 14% respectively. Because the shares are measured relative to GDP, the rise cannot be explained by growth or inflation; it reflects genuinely deeper integration into world markets.",
+          "Import and export shares of GDP have risen roughly three-fold and two-and-a-half-fold since 1960 — from about 5% to roughly 12% and 14% respectively. Because the shares are measured relative to GDP, the rise cannot be explained by growth or inflation; it reflects genuinely deeper integration into world markets.",
         sources: ["EXPGS", "IMPGS", "GDP"],
       },
       {
@@ -74,7 +74,7 @@ export const LESSON_11: LessonSeed = {
         points: 10,
         title: "From surplus to deficit: seventy years of net exports",
         body:
-          "Clear your chart and plot Net Exports of Goods and Services (NETEXP) on Level, then turn on recession shading. Because this series is exports minus imports, it crosses zero — everything above the line is a trade surplus, everything below is a deficit.\n\nFor the first three postwar decades the U.S. ran surpluses in most quarters, though never large ones. The first deficits appear in the early 1970s, and after a final burst of surplus in 1975 the line turns decisively: since mid-1976 net exports have been negative in every quarter but one (a brief surplus in late 1980). Then the deficit ballooned in the 2000s, sinking from roughly balanced trade in the early 1990s to more than $800 billion — nearly 6% of GDP — by 2006.\n\nNow use the shaded bars: the deficit consistently narrows in recessions, because Americans' import buying falls with their incomes. In the Great Recession the deficit shrank by more than half, from about $800 billion in 2006 to roughly $360 billion by mid-2009 — a reminder that a shrinking trade deficit is not necessarily good news.",
+          "Clear your chart and plot Net Exports of Goods and Services (NETEXP) on Level, then turn on recession shading. Because this series is exports minus imports, it crosses zero — everything above the line is a trade surplus, everything below is a deficit.\n\nFor the first three postwar decades the U.S. ran surpluses in most quarters, though never large ones — scattered small deficits show up as early as 1950–53 and again in the late 1950s. After a final burst of surplus in 1975 the line turns decisively: since mid-1976 net exports have been negative in every quarter but one (a brief surplus in late 1980). Then the deficit ballooned in the 2000s, sinking from roughly balanced trade in the early 1990s to more than $800 billion — nearly 6% of GDP — by 2006.\n\nNow use the shaded bars: the deficit consistently narrows in recessions, because Americans' import buying falls with their incomes. In the Great Recession the deficit shrank by more than half, from about $800 billion in 2006 to roughly $360 billion by mid-2009 — a reminder that a shrinking trade deficit is not necessarily good news.",
         hint: "Open Output & Income → Net Exports of Goods and Services, keep its transform on Level, and turn on recession shading.",
         target: {
           series: [{ id: "NETEXP", transform: "LEVEL" }],

@@ -69,7 +69,7 @@ export const LESSON_10: LessonSeed = {
         ],
         correctIndex: 0,
         explanation:
-          "In fiscal years 1998–2001 a booming economy and capital-gains revenue pushed receipts above outlays four years running, peaking at a $236 billion surplus in FY2000. The 1960s managed exactly one surplus year (1969), and the deficit-financed WWII 1940s ran some of the largest deficits in U.S. history.",
+          "In fiscal years 1998–2001 a booming economy and capital-gains revenue pushed receipts above outlays four years running, peaking at a $236 billion surplus in FY2000. The 1960s managed just two surplus years (FY1960 and FY1969), and the deficit-financed WWII 1940s ran some of the largest deficits in U.S. history.",
         sources: ["FYFSD"],
       },
       {
@@ -100,7 +100,7 @@ export const LESSON_10: LessonSeed = {
         ],
         correctIndex: 1,
         explanation:
-          "In 2020Q2 the ratio hit 132.7% — massive relief borrowing pushed the numerator up in the same quarter the COVID shutdown crushed the denominator. WWII's peak was around 106% on an annual basis (1946), so the COVID spike narrowly exceeds even that; the ratio then eased back as GDP rebounded, to the low 120s today.",
+          "In 2020Q2 the ratio hit 132.7% — massive relief borrowing pushed the numerator up in the same quarter the COVID shutdown crushed the denominator. On this gross-debt measure the WWII-era peak was roughly 119% of GDP in 1946 (the often-quoted 106% figure counts only debt held by the public), so the COVID spike exceeds even the wartime record; the ratio then eased back as GDP rebounded, to the low 120s today.",
         sources: ["GFDEGDQ188S"],
       },
       {

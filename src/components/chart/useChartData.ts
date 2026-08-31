@@ -41,6 +41,11 @@ export function useCatalog(): CatalogCategory[] | null {
       .then((body: { categories: CatalogCategory[] }) => {
         catalogCache = body.categories;
         return body.categories;
+      })
+      .catch((err) => {
+        // Don't memoize a failure — let the next mount retry.
+        catalogPromise = null;
+        throw err;
       });
     let cancelled = false;
     catalogPromise
@@ -73,6 +78,10 @@ export function useRecessionBands(enabled: boolean): PanelBand[] {
           end: Date.parse(`${b.end}T00:00:00Z`) + MS_MONTH,
         }));
         return bandsCache;
+      })
+      .catch((err) => {
+        bandsPromise = null; // retry on the next mount
+        throw err;
       });
     let cancelled = false;
     bandsPromise
@@ -107,6 +116,17 @@ export function seriesKey(s: ChartSeriesState, state: ChartState): string {
 }
 
 const dataCache = new Map<string, SeriesPanelData>();
+const failedKeys = new Map<string, string>(); // key → error message
+const DATA_CACHE_MAX = 300;
+
+function cacheSet(key: string, payload: SeriesPanelData) {
+  if (dataCache.size >= DATA_CACHE_MAX) {
+    // Drop the oldest entry (Map preserves insertion order).
+    const oldest = dataCache.keys().next().value;
+    if (oldest !== undefined) dataCache.delete(oldest);
+  }
+  dataCache.set(key, payload);
+}
 
 interface RawPayload {
   id: string;
@@ -174,14 +194,20 @@ export function useSeriesData(state: ChartState): {
       const key = seriesKey(current.series[i], current);
       const s = current.series[i];
       if (dataCache.has(key) || inFlight.current.has(key)) continue;
+      failedKeys.delete(key); // a fresh effect run retries failed keys
       inFlight.current.add(key);
       fetchSeriesData(s, current, key)
         .then((payload) => {
-          dataCache.set(key, payload);
+          cacheSet(key, payload);
         })
         .catch((err: Error) => {
+          failedKeys.set(key, `${s.id}: ${err.message}`);
           if (mounted.current) {
-            setErrors((prev) => [...prev, `${s.id}: ${err.message}`]);
+            setErrors((prev) =>
+              prev.includes(`${s.id}: ${err.message}`)
+                ? prev
+                : [...prev, `${s.id}: ${err.message}`]
+            );
           }
         })
         .finally(() => {
@@ -196,7 +222,9 @@ export function useSeriesData(state: ChartState): {
     const d = dataCache.get(key);
     if (d) panels.set(key, d);
   }
-  const loading = keys.some((k) => !dataCache.has(k));
+  // A key that failed is no longer "loading" — the error surfaces instead of
+  // an eternal spinner.
+  const loading = keys.some((k) => !dataCache.has(k) && !failedKeys.has(k));
   return { panels, loading, errors };
 }
 

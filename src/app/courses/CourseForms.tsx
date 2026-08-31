@@ -15,18 +15,23 @@ export function CreateCourseForm() {
         e.preventDefault();
         setBusy(true);
         setError(null);
-        const res = await fetch("/api/v1/courses", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ name }),
-        });
-        setBusy(false);
-        if (res.ok) {
-          setName("");
-          router.refresh();
-        } else {
-          const body = await res.json().catch(() => null);
-          setError(body?.error ?? "Failed to create course");
+        try {
+          const res = await fetch("/api/v1/courses", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ name }),
+          });
+          if (res.ok) {
+            setName("");
+            router.refresh();
+          } else {
+            const body = await res.json().catch(() => null);
+            setError(body?.error ?? "Failed to create course");
+          }
+        } catch {
+          setError("Network error — try again.");
+        } finally {
+          setBusy(false);
         }
       }}
       style={{ display: "flex", gap: "0.6rem", alignItems: "flex-end", flexWrap: "wrap" }}
@@ -64,19 +69,24 @@ export function EnrollForm({ courseId }: { courseId: string }) {
         setBusy(true);
         setError(null);
         setMessage(null);
-        const res = await fetch(`/api/v1/courses/${courseId}/enroll`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        setBusy(false);
-        if (res.ok) {
-          setMessage(`Enrolled ${email}`);
-          setEmail("");
-          router.refresh();
-        } else {
-          const body = await res.json().catch(() => null);
-          setError(body?.error ?? "Enrollment failed");
+        try {
+          const res = await fetch(`/api/v1/courses/${courseId}/enroll`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          if (res.ok) {
+            setMessage(`Enrolled ${email}`);
+            setEmail("");
+            router.refresh();
+          } else {
+            const body = await res.json().catch(() => null);
+            setError(body?.error ?? "Enrollment failed");
+          }
+        } catch {
+          setError("Network error — try again.");
+        } finally {
+          setBusy(false);
         }
       }}
       style={{ display: "flex", gap: "0.6rem", alignItems: "flex-end", flexWrap: "wrap" }}
@@ -142,15 +152,20 @@ export function AssignmentsForm({
         data-testid="assign-save"
         onClick={async () => {
           setBusy(true);
-          const res = await fetch(`/api/v1/courses/${courseId}/assignments`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ lessonSlugs: [...selected] }),
-          });
-          setBusy(false);
-          if (res.ok) {
-            setSaved(true);
-            router.refresh();
+          try {
+            const res = await fetch(`/api/v1/courses/${courseId}/assignments`, {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ lessonSlugs: [...selected] }),
+            });
+            if (res.ok) {
+              setSaved(true);
+              router.refresh();
+            }
+          } catch {
+            // network hiccup — leave saved=false so the instructor retries
+          } finally {
+            setBusy(false);
           }
         }}
       >

@@ -36,7 +36,13 @@ async function rebaseFactor(): Promise<number> {
   if (rebaseFactorCache !== null) return rebaseFactorCache;
   const deflator = annualMeans(await loadObservations("GDPDEF"));
   const base = deflator.get(STATSBOOK_BASE_YEAR);
-  rebaseFactorCache = base ? base / 100 : 1;
+  if (!base) {
+    // Deflator not synced yet — fall back to un-rebased values for this
+    // request, but do NOT cache the fallback: once data arrives the correct
+    // factor must be picked up.
+    return 1;
+  }
+  rebaseFactorCache = base / 100;
   return rebaseFactorCache;
 }
 

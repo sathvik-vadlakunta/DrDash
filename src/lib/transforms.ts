@@ -86,8 +86,8 @@ const PERIODS_PER_YEAR: Record<SeriesDef["frequency"], number> = {
   ANNUAL: 1,
 };
 
-/** Binary search: value of the latest observation with date <= target, or null. */
-export function valueAtOrBefore(obs: Obs[], date: string): number | null {
+/** Binary search: index of the latest observation with date <= target, or -1. */
+export function indexAtOrBefore(obs: Obs[], date: string): number {
   let lo = 0;
   let hi = obs.length - 1;
   let best = -1;
@@ -100,7 +100,17 @@ export function valueAtOrBefore(obs: Obs[], date: string): number | null {
       hi = mid - 1;
     }
   }
-  return best >= 0 ? obs[best].value : null;
+  return best;
+}
+
+/** Binary search: value of the latest observation with date <= target, or null. */
+export function valueAtOrBefore(obs: Obs[], date: string): number | null {
+  const i = indexAtOrBefore(obs, date);
+  return i >= 0 ? obs[i].value : null;
+}
+
+function daysBetween(a: string, b: string): number {
+  return Math.abs(Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 86_400_000;
 }
 
 function shiftYear(date: string, years: number): string {
@@ -126,9 +136,12 @@ export function yoyGrowth(obs: Obs[], def: SeriesDef): Obs[] {
     if (exactGrid) {
       prev = byDate.get(target);
     } else {
-      prev = valueAtOrBefore(obs, target);
-      // Guard against comparing with a value far older than one year.
-      if (prev !== null && obs[0].date > shiftYear(target, 1)) prev = null;
+      // Weekly/daily grids rarely have an observation exactly a year earlier;
+      // compare against the nearest one at or before the target, but only if
+      // it is genuinely close (guards against publication gaps producing a
+      // stale multi-month-old comparison).
+      const i = indexAtOrBefore(obs, target);
+      prev = i >= 0 && daysBetween(obs[i].date, target) <= 45 ? obs[i].value : null;
     }
     if (prev !== undefined && prev !== null && prev !== 0) {
       out.push({ date: o.date, value: ((o.value / prev) - 1) * 100 });
@@ -215,9 +228,16 @@ export function transformSeries(
           out.push({ date: o.date, value: (o.value * base.value) / p });
         }
       }
+      const rebasedUnits = def.units
+        .replace(/^Billions of dollars/, `Billions of ${baseYear} dollars`)
+        .replace(/^Millions of dollars/, `Millions of ${baseYear} dollars`)
+        .replace(/^Dollars/, `${baseYear} dollars`);
       return {
         obs: out,
-        units: `${def.units.replace(/^Billions of dollars/, `Billions of ${baseYear} dollars`).replace(/^Millions of dollars/, `Millions of ${baseYear} dollars`).replace(/^Dollars/, `${baseYear} dollars`)}${def.units.includes("dollars") ? "" : ` (${baseYear} dollars)`}`,
+        units:
+          rebasedUnits !== def.units
+            ? rebasedUnits
+            : `${def.units} (${baseYear} dollars)`,
         unitClass,
       };
     }

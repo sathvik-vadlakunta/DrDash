@@ -368,7 +368,7 @@ export const STATSBOOK_FIGURES: StatsbookFigure[] = [
     id: 38,
     title: "Exports and Imports as a Percent of GDP",
     description:
-      "Exports and imports each divided by GDP — a scale-free measure of how open the U.S. economy is. Both shares have roughly tripled since the 1950s as trade barriers and transport costs fell.",
+      "Exports and imports each divided by GDP — a scale-free measure of how open the U.S. economy is. Since the 1950s the import share has roughly tripled and the export share has risen about two-and-a-half-fold as trade barriers and transport costs fell.",
     series: [
       { id: "EXPGS", transform: "PCT_OF", denominatorId: "GDP" },
       { id: "IMPGS", transform: "PCT_OF", denominatorId: "GDP" },
@@ -449,7 +449,7 @@ export const STATSBOOK_FIGURES: StatsbookFigure[] = [
       "The year-over-year growth of nominal hourly wages for production and nonsupervisory workers. Compare it with CPI inflation to see whether paychecks are gaining or losing purchasing power.",
     series: [{ id: "AHETPI", transform: "YOY_GROWTH" }],
     category: "labor",
-    tableRef: 11,
+    tableRef: 10,
   },
 
   // ─────────────────────── Productivity & Costs (47–49) ────────────────────
@@ -489,7 +489,7 @@ export const STATSBOOK_FIGURES: StatsbookFigure[] = [
     id: 50,
     title: "Income Distribution (Gini Index)",
     description:
-      "The Gini index of income inequality: 0 means everyone earns the same, 100 means one person earns everything. See Figure 50 to get an idea how the distribution of income has changed over time — the U.S. index has risen from 36.7 in 1963 to 41.8 in 2024.",
+      "The Gini index of income inequality: 0 means everyone earns the same, 100 means one person earns everything. This figure shows how the distribution of income has changed over time: the U.S. index has risen from 36.7 in 1963 to 41.8 in 2024.",
     series: [{ id: "SIPOVGINIUSA", transform: "LEVEL" }],
     category: "distribution",
     tableRef: 16,

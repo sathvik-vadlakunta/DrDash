@@ -14,13 +14,17 @@ export async function POST(
   if (course.instructorId !== user.id && user.role !== "ADMIN") {
     return NextResponse.json({ error: "Not your course" }, { status: 403 });
   }
-  let body: { email?: string };
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  const email = body.email?.trim().toLowerCase();
+  const rawEmail =
+    typeof body === "object" && body !== null
+      ? (body as Record<string, unknown>).email
+      : undefined;
+  const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
   if (!email) return NextResponse.json({ error: "email is required" }, { status: 400 });
   const student = await prisma.user.findUnique({ where: { email } });
   if (!student) {

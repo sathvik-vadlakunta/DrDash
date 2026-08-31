@@ -27,13 +27,17 @@ export async function POST(req: Request) {
       { status: 403 }
     );
   }
-  let body: { name?: string };
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  const name = body.name?.trim();
+  const rawName =
+    typeof body === "object" && body !== null
+      ? (body as Record<string, unknown>).name
+      : undefined;
+  const name = typeof rawName === "string" ? rawName.trim() : "";
   if (!name) {
     return NextResponse.json({ error: "Course name is required" }, { status: 400 });
   }

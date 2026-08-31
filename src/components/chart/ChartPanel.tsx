@@ -66,6 +66,15 @@ export function ChartPanel({
   bands?: PanelBand[];
   height?: number;
 }) {
+  // Defensive dedupe: two entries with the same key would collide as React
+  // keys and double the legend.
+  const seen = new Set<string>();
+  series = series.filter((s) => {
+    if (seen.has(s.key)) return false;
+    seen.add(s.key);
+    return true;
+  });
+
   if (series.length === 0 || series.every((s) => s.points.length === 0)) {
     return (
       <div className="chart-empty" style={{ height }}>

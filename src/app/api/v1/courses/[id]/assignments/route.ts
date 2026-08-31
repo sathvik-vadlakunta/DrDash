@@ -14,17 +14,22 @@ export async function POST(
   if (course.instructorId !== user.id && user.role !== "ADMIN") {
     return NextResponse.json({ error: "Not your course" }, { status: 403 });
   }
-  let body: { lessonSlugs?: string[] };
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-  if (!Array.isArray(body.lessonSlugs)) {
+  const rawSlugs =
+    typeof body === "object" && body !== null
+      ? (body as Record<string, unknown>).lessonSlugs
+      : undefined;
+  if (!Array.isArray(rawSlugs)) {
     return NextResponse.json({ error: "lessonSlugs is required" }, { status: 400 });
   }
+  const lessonSlugs = rawSlugs.filter((s): s is string => typeof s === "string");
   const lessons = await prisma.lesson.findMany({
-    where: { slug: { in: body.lessonSlugs } },
+    where: { slug: { in: lessonSlugs } },
   });
   const keepIds = lessons.map((l) => l.id);
   await prisma.assignment.deleteMany({

@@ -113,7 +113,7 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
     id: 4,
     title: "Aggregate Income Measures",
     description:
-      "The chain of aggregate income measures from GDP down to what households can actually spend: net national product (GDP less depreciation), national income (income earned in production), and disposable personal income (household income after taxes). GDP proxies GNP here — the two differ only by net factor income from abroad.",
+      "The chain of aggregate income measures from total output down to what households can actually spend: gross national product, net national product (GNP less depreciation), national income (income earned in production), personal income, and disposable personal income (after taxes).",
     columns: [
       {
         key: "gdp",
@@ -122,15 +122,27 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
         format: "currencyB",
       },
       {
+        key: "gnp",
+        label: "Gross National Product ($B)",
+        source: { seriesId: "A023RC1A027NBEA" },
+        format: "currencyB",
+      },
+      {
         key: "nnp",
         label: "Net National Product ($B)",
-        source: { seriesId: "A023RC1A027NBEA" },
+        source: { seriesId: "A027RC1A027NBEA" },
         format: "currencyB",
       },
       {
         key: "nationalIncome",
         label: "National Income ($B)",
         source: { seriesId: "A032RC1A027NBEA" },
+        format: "currencyB",
+      },
+      {
+        key: "personalIncome",
+        label: "Personal Income ($B)",
+        source: { seriesId: "PI" },
         format: "currencyB",
       },
       {
@@ -185,6 +197,18 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
     description:
       "What households do with after-tax income: consume it or save it. Consumption here is total PCE (which includes items outside disposable income accounting conventions), and the saving rate is personal saving as a percent of disposable income.",
     columns: [
+      {
+        key: "personalIncome",
+        label: "Personal Income ($B)",
+        source: { seriesId: "PI" },
+        format: "currencyB",
+      },
+      {
+        key: "personalTaxes",
+        label: "Personal Current Taxes ($B)",
+        source: { seriesId: "W055RC1A027NBEA" },
+        format: "currencyB",
+      },
       {
         key: "dpi",
         label: "Disposable Personal Income ($B)",
@@ -292,6 +316,12 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
         format: "currency",
       },
       {
+        key: "netForeignInvestment",
+        label: "Net Foreign Investment ($B)",
+        source: { seriesId: "NETFI" },
+        format: "currencyB",
+      },
+      {
         key: "productivity",
         label: "Labor Productivity (Index, 2017=100)",
         source: { seriesId: "OPHNFB" },
@@ -299,7 +329,7 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
       },
     ],
     notes:
-      "The seeded real nonresidential fixed investment series (PNFIC1) begins in 2007; earlier rows show only the other columns.",
+      "Net foreign investment is NIPA net lending/borrowing with the rest of the world (negative when the U.S. borrows abroad). The seeded real nonresidential fixed investment series (PNFIC1) begins in 2007; earlier rows show only the other columns.",
   },
   {
     id: 10,
@@ -423,7 +453,7 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
       },
       {
         key: "monetaryBase",
-        label: "Monetary Base ($M)",
+        label: "Monetary Base ($B)",
         source: { seriesId: "BOGMBASE" },
         format: "currencyB",
       },
@@ -435,7 +465,7 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
       },
     ],
     notes:
-      "The monetary base is stored in millions of dollars, not billions. A definitional change in May 2020 moved savings deposits into M1, producing a one-time jump in that column. All three money-stock series begin in 1959.",
+      "A definitional change in May 2020 moved savings deposits into M1, producing a one-time jump in that column. All three money-stock series begin in 1959.",
   },
   {
     id: 13,
@@ -483,6 +513,34 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
         },
         format: "percent",
       },
+      {
+        key: "receiptsToGdp",
+        label: "Receipts (% of GDP)",
+        source: {
+          seriesId: "FGRECPT",
+          transform: "PCT_OF",
+          denominatorId: "GDP",
+        },
+        format: "percent",
+      },
+      {
+        key: "deficitToGdp",
+        label: "Surplus/Deficit (% of GDP)",
+        source: { seriesId: "FYFSD", transform: "PCT_OF", denominatorId: "GDP" },
+        format: "percent",
+      },
+      {
+        key: "receiptsPerCapita",
+        label: "Receipts Per Capita ($)",
+        source: { seriesId: "FGRECPT", transform: "PER_CAPITA" },
+        format: "currency",
+      },
+      {
+        key: "outlaysPerCapita",
+        label: "Expenditures Per Capita ($)",
+        source: { seriesId: "FGEXPND", transform: "PER_CAPITA" },
+        format: "currency",
+      },
     ],
     notes:
       "The surplus/deficit and debt columns are stored in millions of dollars, not billions. The surplus/deficit is on a fiscal-year budget basis while receipts and expenditures are calendar-year NIPA aggregates, so the columns will not reconcile exactly. Debt series begin in 1966.",
@@ -523,7 +581,7 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
     id: 15,
     title: "Composition of Government Expenditures",
     description:
-      "Three major categories of federal spending: defense purchases, nondefense purchases, and interest payments on the federal debt — the cost of servicing the accumulated deficits in Table 13.",
+      "The major categories of federal spending: defense and nondefense purchases, transfer payments (Social Security, Medicare, Medicaid, and other mandatory benefit programs — the largest category), and interest payments on the federal debt — the cost of servicing the accumulated deficits in Table 13.",
     columns: [
       {
         key: "defense",
@@ -538,12 +596,20 @@ export const STATSBOOK_TABLES: StatsbookTableDef[] = [
         format: "currencyB",
       },
       {
+        key: "transfers",
+        label: "Transfer Payments — Mandatory Programs ($B)",
+        source: { seriesId: "W014RC1Q027SBEA" },
+        format: "currencyB",
+      },
+      {
         key: "interest",
         label: "Interest Payments ($B)",
         source: { seriesId: "A091RC1Q027SBEA" },
         format: "currencyB",
       },
     ],
+    notes:
+      "Defense and nondefense are NIPA consumption/investment purchases; transfers are current transfer payments. Together with interest they cover the bulk of the total federal expenditures shown in Table 13.",
   },
   {
     id: 16,

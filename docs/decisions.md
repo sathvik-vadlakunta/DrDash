@@ -92,6 +92,38 @@ completion-graded and surfaced to instructors on the course page under
 per-submission feedback) remains out of scope; revisit if instructors ask for
 grading inside Dr. Dash.
 
+## 3a. Corrections from the adversarial data review
+
+A six-way adversarial review (every empirical claim recomputed from the
+bundled data) surfaced and fixed the following before release:
+
+- **`A023RC1A027NBEA` is GNP, not NNP** (1929 = $104.6B, the textbook GNP
+  figure; values exceed GDP). It is now labeled *Gross National Product*, and
+  the true NNP series `A027RC1A027NBEA` (1929 = $94.9B; 2024 = $24,493B ≈
+  GDP − depreciation) was seeded for Statsbook Table 4.
+- **`BOGMBASE` is served by FRED in billions**, not the millions its older
+  documentation suggests (Dec 2008 = 1,666.4 ⇒ the ~$1.67T post-Lehman
+  base). Catalog units and Table 12 labels corrected; transforms now scale
+  it correctly.
+- **Added `PI` (Personal Income) and `W014RC1Q027SBEA` (federal transfer
+  payments)** so Statsbook Tables 4, 6, and 15 carry the columns the board
+  specified (transfers = the "mandatory programs" category); Table 9 gained
+  the net-foreign-investment column via `NETFI`; Table 13 gained
+  receipts/deficit as % of GDP and per-capita receipts/outlays columns.
+- A dozen smaller factual fixes in lesson text (first postwar trade deficits
+  appear in 1950–53, not the early 1970s; two 1960s surplus years, not one;
+  the WWII gross-debt peak was ~119% of GDP, not the 106% held-by-public
+  figure; the 2009-era misery-index peak was ~12.8, not ~10; the FOMC's New
+  York Fed president is a permanent voter; CPI–PCE gap stated as 0.3–0.5pp;
+  investment's GDP share now exceeds government purchases' in recent data).
+- The remaining board presentation conventions not implemented — per-capita
+  2024$ restatements of every column in Tables 2, 4, 5, 13, 14, and 15 — are
+  a print-layout convention of the paper statsbook. The app shows nominal
+  aggregates plus explicit per-capita/share columns where they carry teaching
+  value, and every table exports to CSV for instructors who want other
+  presentations. (A chained REAL+PER_CAPITA column type is the natural
+  extension if instructors ask.)
+
 ## 4. Other calls worth recording
 
 - **Statsbook real-dollar base year**: table columns flagged
@@ -114,7 +146,12 @@ grading inside Dr. Dash.
   to charts to keep payloads and rendering fast.
 - **Auth** is deliberately minimal (scrypt + HMAC-signed cookie sessions,
   seeded accounts) — appropriate for a classroom tool; swap for an identity
-  provider before any broader deployment.
+  provider before any broader deployment. Known accepted limitation:
+  sessions are stateless HMAC tokens, so logout clears the cookie but cannot
+  revoke an exfiltrated token before its 14-day expiry; a token-version
+  column is the upgrade path if this ever matters. The login route hashes a
+  dummy credential on unknown emails so timing does not reveal which
+  accounts exist.
 
 ## 5. Tasks that require humans or external services
 

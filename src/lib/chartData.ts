@@ -81,8 +81,15 @@ export async function getTransformedSeries(
 
   const result = transformSeries(def, obs, config, helpers);
   let out = result.obs;
-  if (range.from) out = out.filter((o) => o.date >= `${range.from}-01-01`);
-  if (range.to) out = out.filter((o) => o.date <= `${range.to}-12-31`);
+  // Only complete 4-digit years filter; anything else (partial keystrokes,
+  // junk query params) is ignored rather than compared lexicographically.
+  const YEAR = /^\d{4}$/;
+  if (range.from && YEAR.test(range.from)) {
+    out = out.filter((o) => o.date >= `${range.from}-01-01`);
+  }
+  if (range.to && YEAR.test(range.to)) {
+    out = out.filter((o) => o.date <= `${range.to}-12-31`);
+  }
 
   return {
     id: def.id,

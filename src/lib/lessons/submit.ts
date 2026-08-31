@@ -220,7 +220,12 @@ export async function submitLessonStep(
     const submissions = await prisma.stepSubmission.findMany({
       where: { progressId: progress.id },
     });
-    const score = submissions.reduce((sum, s) => sum + s.pointsAwarded, 0);
+    const currentStepIds = new Set(content.steps.map((s) => s.id));
+    // Sum only steps that still exist in the (possibly re-seeded) lesson so a
+    // renamed/removed step's phantom points never inflate the score.
+    const score = submissions
+      .filter((s) => currentStepIds.has(s.stepId))
+      .reduce((sum, s) => sum + s.pointsAwarded, 0);
     const finalizedIds = new Set(
       submissions
         .filter((s) => {

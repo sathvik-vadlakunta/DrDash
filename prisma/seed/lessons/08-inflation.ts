@@ -57,7 +57,7 @@ export const LESSON_08: LessonSeed = {
         ],
         correctIndex: 1,
         explanation:
-          "Through most of 2021–22, CPI inflation (peaking near 9%) ran ahead of nominal wage growth (around 5–6%), so real purchasing power fell even as paychecks grew. Real wages only began recovering once inflation cooled in 2023.",
+          "Through most of 2021–22, CPI inflation (peaking near 9%) ran ahead of nominal wage growth (around 6–7%, averaging about 6.4% in 2022), so real purchasing power fell even as paychecks grew. Real wages only began recovering once inflation cooled in 2023.",
         sources: ["CPIAUCSL", "AHETPI"],
       },
       {
@@ -100,7 +100,7 @@ export const LESSON_08: LessonSeed = {
         points: 10,
         title: "Compare PCE and CPI inflation",
         body:
-          "Now clear your chart and plot the PCE Price Index (PCEPI) growth rate alongside the CPI (CPIAUCSL) growth rate.\n\nThe two track each other closely, but look carefully: PCE inflation consistently runs about 0.3 percentage points below CPI inflation. The gap comes from PCE's broader coverage and its continuously updating weights, which capture households substituting toward cheaper goods. This is the index the Fed actually targets — so \"2% inflation\" means 2% on this line, not the CPI line.",
+          "Now clear your chart and plot the PCE Price Index (PCEPI) growth rate alongside the CPI (CPIAUCSL) growth rate.\n\nThe two track each other closely, but look carefully: PCE inflation consistently runs a few tenths of a percentage point below CPI inflation — about 0.3–0.5 pp on average. The gap comes from PCE's broader coverage and its continuously updating weights, which capture households substituting toward cheaper goods. This is the index the Fed actually targets — so \"2% inflation\" means 2% on this line, not the CPI line.",
         hint: "Add PCEPI with the Growth Rate transform; keep CPIAUCSL (Growth Rate) for comparison.",
         target: {
           series: [
