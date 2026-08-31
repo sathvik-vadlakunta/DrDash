@@ -18,9 +18,9 @@
     "test:e2e": "playwright test",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "sync": "tsx scripts/sync.ts",
-    "check:catalog": "tsx scripts/check-catalog.ts",
-    "fetch:fred": "tsx scripts/fetch-fred.ts",
+    "sync": "NODE_USE_ENV_PROXY=1 tsx scripts/sync.ts",
+    "check:catalog": "NODE_USE_ENV_PROXY=1 tsx scripts/check-catalog.ts",
+    "fetch:fred": "NODE_USE_ENV_PROXY=1 tsx scripts/fetch-fred.ts",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm check:catalog && pnpm build"
   },
   "prisma": {

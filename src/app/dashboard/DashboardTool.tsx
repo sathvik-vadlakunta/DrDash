@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   decodeChartState,
+  encodeChartState,
   dashboardHref,
   type ChartState,
 } from "@/lib/dashboard/urlState";
@@ -31,13 +32,17 @@ export function DashboardTool() {
   );
 
   // Adopt external navigation (e.g. an "Open in Chart Tool" link clicked
-  // while already on the dashboard).
+  // while already on the dashboard). Skip when the URL already matches the
+  // current state so the initial mount doesn't churn state identity.
   useEffect(() => {
     if (selfNavigation.current) {
       selfNavigation.current = false;
       return;
     }
-    setState(decodeChartState(searchParams.toString()));
+    const incoming = decodeChartState(searchParams.toString());
+    setState((prev) =>
+      encodeChartState(incoming) === encodeChartState(prev) ? prev : incoming
+    );
   }, [searchParams]);
 
   async function copyLink() {

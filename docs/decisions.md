@@ -32,6 +32,10 @@ Related notes:
   `A048RC1A027NBEA`, `A453RC1A027NBEA`, `W055RC1A027NBEA`, `FCTAX`,
   `A061RC1A027NBEA`, `B234RC1A027NBEA`, `FDEFX`, `FNDEFX`,
   `A091RC1Q027SBEA`, `GSAVE`, `COFC`.
+- Statsbook Table 17 (capital stock): the board asked us to "decide whether
+  to add fixed private capital stock" — decided **yes**: `K1PTOTL1ES000`
+  (current-cost net stock of private fixed assets, annual 1925–2024) resolves
+  on FRED and completes the table alongside `TCU`, `MCUMFN`, and `PNFIC1`.
 - Statsbook Table 11 (population): `CNP16OV` covers the working-age
   population concept the statsbook uses (civilian noninstitutional, 16+), so
   `LNU00000000` was **not** added — it is the NSA twin of the same concept.

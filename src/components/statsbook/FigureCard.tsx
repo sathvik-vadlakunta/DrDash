@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { StatsbookFigure } from "@/lib/statsbook/types";
 import { dashboardHref, type ChartState } from "@/lib/dashboard/urlState";
@@ -33,11 +33,14 @@ export function FigureCard({ figure }: { figure: StatsbookFigure }) {
     return () => obs.disconnect();
   }, [inView]);
 
-  const state: ChartState = {
-    series: figure.series,
-    recessions: !!figure.recessions,
-    from: figure.from,
-  };
+  const state: ChartState = useMemo(
+    () => ({
+      series: figure.series,
+      recessions: !!figure.recessions,
+      from: figure.from,
+    }),
+    [figure]
+  );
 
   return (
     <div className="figure-card" ref={ref} data-testid={`figure-${figure.id}`}>

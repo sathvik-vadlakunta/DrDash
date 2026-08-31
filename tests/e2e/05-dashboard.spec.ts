@@ -46,13 +46,20 @@ test("the ratio transform produces a sensible outlays share of GDP", async ({
   await page.goto("/dashboard?s=FGEXPND:pctof:GDP&from=1960");
   await expect(page.getByTestId("dash-chip-FGEXPND")).toBeVisible();
   await expect(page.locator(".recharts-line-curve").first()).toBeVisible();
-  // The y-axis for a ~15–30% series should show ticks in that range and
+  // The y-axis for a ~15–45% series should show ticks in that range and
   // never four-digit values (which would mean the ratio math is off).
-  const tickTexts = await page
-    .locator(".recharts-yAxis .recharts-cartesian-axis-tick-value")
-    .allInnerTexts();
-  const numeric = tickTexts
-    .map((t) => Number(t.replace(/,/g, "")))
-    .filter((n) => Number.isFinite(n));
-  expect(Math.max(...numeric)).toBeLessThanOrEqual(50);
+  await expect(
+    page.locator(".recharts-yAxis .recharts-cartesian-axis-tick-value").first()
+  ).toBeVisible();
+  const numeric = await page.evaluate(() =>
+    Array.from(
+      document.querySelectorAll(
+        ".recharts-yAxis .recharts-cartesian-axis-tick-value"
+      )
+    )
+      .map((el) => Number((el.textContent ?? "").replace(/,/g, "")))
+      .filter((n) => Number.isFinite(n))
+  );
+  expect(numeric.length).toBeGreaterThan(0);
+  expect(Math.max(...numeric)).toBeLessThanOrEqual(60);
 });

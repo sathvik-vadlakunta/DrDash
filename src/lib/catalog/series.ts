@@ -391,6 +391,21 @@ export const SERIES_CATALOG: SeriesDef[] = [
       "Net interest paid by businesses — the interest component of national income. Statsbook Table 5.",
   },
   {
+    id: "K1PTOTL1ES000",
+    name: "Fixed Private Capital Stock (current-cost net)",
+    category: "output-income",
+    kind: "LEVEL_CURRENCY",
+    frequency: "ANNUAL",
+    seasonal: "NSA",
+    units: "Millions of dollars",
+    nominal: true,
+    canGrowth: true,
+    source: "FRED",
+    dollarScale: M,
+    description:
+      "The current-cost net stock of private fixed assets — the economy's accumulated private capital. Statsbook Table 17.",
+  },
+  {
     id: "USREC",
     name: "NBER Recession Indicator",
     category: "output-income",

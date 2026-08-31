@@ -78,15 +78,23 @@ describe("statsbook figures resolve against real data", () => {
     expect(Math.max(...values)).toBeLessThan(2.6);
   });
 
-  it("FGEXPND as % of GDP lands in the expected ~15–30% band", async () => {
+  it("FGEXPND as % of GDP lands in the expected band", async () => {
     const payload = await getTransformedSeries("FGEXPND", {
       type: "PCT_OF",
       denominatorId: "GDP",
     });
     const recent = payload.observations.filter(([d]) => d >= "1960-01-01");
-    for (const [, v] of recent) {
-      expect(v).toBeGreaterThan(12);
-      expect(v).toBeLessThan(36);
+    for (const [d, v] of recent) {
+      expect(v, d).toBeGreaterThan(12);
+      // Normally ~15–30%; 2020 Q2 spiked to ~45% (CARES Act outlays against
+      // collapsed GDP), which is real data, not a transform bug.
+      expect(v, d).toBeLessThan(50);
+    }
+    // The typical modern range the lesson quotes (~18–25%) holds outside COVID.
+    const y2019 = recent.filter(([d]) => d.startsWith("2019"));
+    for (const [, v] of y2019) {
+      expect(v).toBeGreaterThan(18);
+      expect(v).toBeLessThan(26);
     }
   });
 });

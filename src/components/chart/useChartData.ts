@@ -152,31 +152,44 @@ export function useSeriesData(state: ChartState): {
   const [errors, setErrors] = useState<string[]>([]);
   const inFlight = useRef(new Set<string>());
 
+  // A completed fetch must always publish a re-render while the component is
+  // mounted — even if the state object identity changed mid-flight (e.g. the
+  // dashboard re-adopting URL state). Gating on a per-effect `cancelled` flag
+  // would drop the wake-up and strand the chart empty.
+  const mounted = useRef(true);
   useEffect(() => {
-    let cancelled = false;
-    for (let i = 0; i < state.series.length; i++) {
-      const key = keys[i];
-      const s = state.series[i];
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const keysSig = keys.join(";");
+
+  useEffect(() => {
+    const current = stateRef.current;
+    for (let i = 0; i < current.series.length; i++) {
+      const key = seriesKey(current.series[i], current);
+      const s = current.series[i];
       if (dataCache.has(key) || inFlight.current.has(key)) continue;
       inFlight.current.add(key);
-      fetchSeriesData(s, state, key)
+      fetchSeriesData(s, current, key)
         .then((payload) => {
           dataCache.set(key, payload);
         })
-        .catch((err) => {
-          if (!cancelled) {
+        .catch((err: Error) => {
+          if (mounted.current) {
             setErrors((prev) => [...prev, `${s.id}: ${err.message}`]);
           }
         })
         .finally(() => {
           inFlight.current.delete(key);
-          if (!cancelled) bump((n) => n + 1);
+          if (mounted.current) bump((n) => n + 1);
         });
     }
-    return () => {
-      cancelled = true;
-    };
-  }, [keys, state]);
+  }, [keysSig]);
 
   const panels = new Map<string, SeriesPanelData>();
   for (const key of keys) {
