@@ -113,6 +113,7 @@ export function Nav({
   }
 
   const isStaff = user && (user.role === "INSTRUCTOR" || user.role === "ADMIN");
+  const isHome = pathname === "/";
 
   return (
     <>
@@ -121,7 +122,7 @@ export function Nav({
           <Link href="/" className="brand">
             Dr. Dash
           </Link>
-          {LINKS.map((l) => (
+          {!isHome && LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -130,7 +131,7 @@ export function Nav({
               {l.label}
             </Link>
           ))}
-          {isStaff && (
+          {!isHome && isStaff && (
             <Link
               href="/admin/sync"
               className={`nav-link${pathname.startsWith("/admin") ? " active" : ""}`}
@@ -148,15 +149,17 @@ export function Nav({
           >
             {isDark ? "☀︎" : "☾"}
           </button>
-          <button
-            type="button"
-            className="btn btn-small nav-shortcuts-btn"
-            onClick={() => dialogRef.current?.showModal()}
-            aria-label="Keyboard shortcuts"
-            title="Keyboard shortcuts (?)"
-          >
-            ?
-          </button>
+          {!isHome && (
+            <button
+              type="button"
+              className="btn btn-small nav-shortcuts-btn"
+              onClick={() => dialogRef.current?.showModal()}
+              aria-label="Keyboard shortcuts"
+              title="Keyboard shortcuts (?)"
+            >
+              ?
+            </button>
+          )}
           {user ? (
             <>
               <span className="nav-user" data-testid="nav-user">
@@ -165,6 +168,15 @@ export function Nav({
               <button className="btn btn-small" onClick={logout} data-testid="logout">
                 Log out
               </button>
+            </>
+          ) : isHome ? (
+            <>
+              <Link href="/login" className="nav-link">
+                Sign in
+              </Link>
+              <Link href="/login" className="btn btn-primary btn-small">
+                Create an account
+              </Link>
             </>
           ) : (
             <Link href="/login" className="nav-link">

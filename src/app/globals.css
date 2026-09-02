@@ -41,7 +41,7 @@
   --yellow:       var(--warn);
   --yellow-soft:  rgba(154, 83, 0, 0.1);
 
-  --radius: 8px;
+  --radius: 0;
   --shadow: 0 1px 2px rgba(11, 27, 43, 0.06);
 
   --font:    var(--font-sans),    ui-sans-serif, system-ui, sans-serif;
@@ -75,7 +75,7 @@ code {
   font-family: var(--mono);
   background: var(--surface-sunken);
   padding: 0.1em 0.35em;
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 0.85em;
 }
 
@@ -114,7 +114,7 @@ code {
 }
 .nav-link {
   padding: 0.35rem 0.65rem;
-  border-radius: 6px;
+  border-radius: 0;
   color: var(--ink-muted);
   font-weight: 500;
   font-size: 0.9rem;
@@ -140,7 +140,7 @@ code {
 .nav-theme-btn, .nav-shortcuts-btn {
   padding: 0.2rem 0.5rem;
   font-size: 0.85rem;
-  border-radius: 5px;
+  border-radius: 0;
 }
 
 /* ── cards, buttons, tags ────────────────────────────────────────────── */
@@ -161,7 +161,7 @@ code {
   border: 1px solid var(--rule-strong);
   background: var(--card);
   color: var(--ink);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.45rem 0.9rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -185,7 +185,7 @@ code {
   font-size: 0.72rem;
   font-weight: 700;
   padding: 0.12rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 0;
   white-space: nowrap;
 }
 .tag-blue   { background: rgba(18, 80, 126, 0.1); color: var(--accent); }
@@ -221,7 +221,7 @@ textarea {
   color: var(--ink);
   background: var(--card);
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.45rem 0.6rem;
 }
 textarea { min-height: 110px; resize: vertical; }
@@ -361,7 +361,7 @@ table.data-table {
   color: var(--ink-muted);
   background: var(--surface-sunken);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.7rem 0.8rem;
   white-space: pre-wrap;
   margin: 0;
@@ -385,7 +385,7 @@ table.data-table {
   color: var(--ink);
   background: var(--card);
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.32rem 0.6rem;
 }
 .catalog-search:focus-visible {
@@ -410,7 +410,7 @@ table.data-table {
 .scope-toggle {
   display: flex;
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: 0;
   overflow: hidden;
 }
 .scope-btn {
@@ -472,7 +472,7 @@ table.data-table {
   font-size: 0.78rem;
   padding: 0.22rem 0.4rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--card);
   color: var(--ink);
   width: auto;
@@ -611,7 +611,7 @@ table.data-table {
   background: var(--card);
   border: 1px solid var(--rule);
   border-left: 4px solid var(--accent);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.4rem 0.6rem;
   font-size: 0.85rem;
 }
@@ -685,7 +685,7 @@ table.data-table {
   font-size: 0.85rem;
   color: var(--ink-muted);
   background: var(--surface-sunken);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.5rem 0.7rem;
   margin: 0.5rem 0;
 }
@@ -695,7 +695,7 @@ table.data-table {
   gap: 0.55rem;
   align-items: flex-start;
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.5rem 0.7rem;
   cursor: pointer;
   background: var(--card);
@@ -706,7 +706,7 @@ table.data-table {
   border-color: var(--accent);
   background: rgba(18, 80, 126, 0.07);
 }
-.feedback { border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.9rem; margin-top: 0.6rem; }
+.feedback { border-radius: 0; padding: 0.6rem 0.8rem; font-size: 0.9rem; margin-top: 0.6rem; }
 .feedback.good  { background: var(--green-soft); color: var(--ok); }
 .feedback.bad   { background: var(--red-soft); color: var(--danger); }
 .feedback.info  { background: rgba(18, 80, 126, 0.08); color: var(--accent); }
@@ -715,7 +715,7 @@ table.data-table {
   flex: 1;
   min-width: 160px;
   height: 6px;
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--rule);
   overflow: hidden;
 }
@@ -764,6 +764,63 @@ table.data-table {
 .filter-bar { display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
 .filter-bar input, .filter-bar select { width: auto; }
 
+/* ── home page ───────────────────────────────────────────────────────── */
+.home-page {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 5rem;
+}
+.home-title {
+  font-size: 2.5rem;
+  font-family: var(--display);
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: var(--ink);
+}
+.home-desc {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink);
+  margin: 0 0 2rem;
+  max-width: 58ch;
+}
+.home-chart-block {
+  margin-bottom: 2.25rem;
+}
+.home-chart-label {
+  margin: 0 0 0.5rem;
+}
+.home-chart-frame {
+  border: 1px solid var(--rule);
+  background: var(--card);
+  padding: 0.25rem 0;
+}
+.home-chart-meta {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  margin: 0.4rem 0 0;
+}
+.home-what-title {
+  font-size: 1.35rem;
+  margin: 0 0 0.75rem;
+}
+.home-list {
+  margin: 0 0 2.25rem;
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.home-ctas {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.home-ctas .btn { font-size: 0.95rem; padding: 0.55rem 1.1rem; }
+
 /* ── misc ────────────────────────────────────────────────────────────── */
 .page-head { margin-bottom: 1.25rem; }
 .page-head p { color: var(--ink-muted); margin: 0.25rem 0 0; max-width: 62rem; }
@@ -797,7 +854,7 @@ table.data-table {
   background: var(--card);
   padding: 0.5rem 1rem;
   z-index: 100;
-  border-radius: 6px;
+  border-radius: 0;
   border: 1px solid var(--accent);
 }
 
@@ -818,7 +875,7 @@ table.data-table {
 .chart-tooltip {
   background: var(--surface-raised);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 6px 10px;
   font-size: 12px;
   box-shadow: 0 2px 8px rgba(11, 27, 43, 0.1);
@@ -871,7 +928,7 @@ table.data-table {
   gap: 0.3rem;
   background: var(--surface-sunken);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.2rem 0.45rem;
   font-size: 0.78rem;
   max-width: 260px;
@@ -880,7 +937,7 @@ table.data-table {
   display: inline-block;
   width: 16px;
   height: 6px;
-  border-radius: 2px;
+  border-radius: 0;
   flex-shrink: 0;
 }
 .chart-legend-freq {
@@ -888,7 +945,7 @@ table.data-table {
   font-size: 0.68rem;
   color: var(--ink-muted);
   background: var(--band);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 0 3px;
   flex-shrink: 0;
 }
@@ -916,7 +973,7 @@ table.data-table {
   font-size: 0.78rem;
   color: var(--warn);
   background: var(--yellow-soft);
-  border-radius: 4px;
+  border-radius: 0;
   padding: 0.18rem 0.55rem;
   white-space: nowrap;
 }
@@ -950,7 +1007,7 @@ dialog.shortcuts-dialog::backdrop {
   font-size: 0.82rem;
   background: var(--surface-sunken);
   border: 1px solid var(--rule-strong);
-  border-radius: 4px;
+  border-radius: 0;
   padding: 0.1rem 0.4rem;
   white-space: nowrap;
 }
