@@ -304,7 +304,7 @@ function TaskControls({
     return [...ids];
   }, [sources, step.target.series]);
 
-  const [chart, setChart] = useState<ChartState>({ series: [], recessions: false });
+  const [chart, setChart] = useState<ChartState>({ series: [], recessions: false, logScale: false });
   const [feedback, setFeedback] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -312,7 +312,7 @@ function TaskControls({
     return (
       <p className="feedback good" data-testid={`step-${step.id}-feedback`}>
         Chart target met. Nicely done — feel free to keep exploring in the{" "}
-        <Link href={dashboardHref({ series: step.target.series, recessions: !!step.target.recessions })}>
+        <Link href={dashboardHref({ series: step.target.series, recessions: !!step.target.recessions, logScale: false })}>
           full Chart Tool
         </Link>
         .

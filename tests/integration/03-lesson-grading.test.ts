@@ -49,6 +49,7 @@ function correctPayload(step: LessonStep): Record<string, unknown> {
           { id: "UNRATE", transform: "LEVEL" },
         ],
         recessions: true,
+        logScale: false,
       })}`;
       return { url };
     }

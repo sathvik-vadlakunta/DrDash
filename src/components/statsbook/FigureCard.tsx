@@ -37,6 +37,7 @@ export function FigureCard({ figure }: { figure: StatsbookFigure }) {
     () => ({
       series: figure.series,
       recessions: !!figure.recessions,
+      logScale: false,
       from: figure.from,
     }),
     [figure]

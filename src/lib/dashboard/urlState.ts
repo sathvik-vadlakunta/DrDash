@@ -27,6 +27,7 @@ export interface ChartSeriesState {
 export interface ChartState {
   series: ChartSeriesState[];
   recessions: boolean;
+  logScale: boolean;
   /** Inclusive year bounds, e.g. "1960". */
   from?: string;
   to?: string;
@@ -60,6 +61,7 @@ export function encodeChartState(state: ChartState): string {
     .join(",");
   if (s) params.set("s", s);
   if (state.recessions) params.set("rec", "1");
+  if (state.logScale) params.set("log", "1");
   if (state.from && YEAR_RE.test(state.from)) params.set("from", state.from);
   if (state.to && YEAR_RE.test(state.to)) params.set("to", state.to);
   return params.toString();
@@ -127,6 +129,7 @@ export function decodeChartState(
   return {
     series,
     recessions: params.get("rec") === "1",
+    logScale: params.get("log") === "1",
     from: from && YEAR_RE.test(from) ? from : undefined,
     to: to && YEAR_RE.test(to) ? to : undefined,
   };

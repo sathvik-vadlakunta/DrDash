@@ -1,28 +1,38 @@
 /* Dr. Dash design system — hand-rolled, no framework. */
 
 :root {
-  --bg: #f7f8fa;
+  --bg: #F3F6F8;
   --card: #ffffff;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text: #1a202c;
-  --muted: #64748b;
-  --accent: #2563eb;
-  --accent-soft: #eff6ff;
-  --accent-strong: #1d4ed8;
-  --green: #16a34a;
-  --green-soft: #f0fdf4;
-  --red: #dc2626;
-  --red-soft: #fef2f2;
-  --yellow: #ca8a04;
-  --yellow-soft: #fefce8;
+  --border: #DBE3EA;
+  --border-strong: #78889A;
+  --text: #0B1B2B;
+  --muted: #56697B;
+  --accent: #12507E;
+  --accent-soft: #E8F1F8;
+  --accent-strong: #0E4066;
+  --green: #1B6B4A;
+  --green-soft: #eaf5f0;
+  --red: #A32B2B;
+  --red-soft: #fbeaea;
+  --yellow: #9A5300;
+  --yellow-soft: #fdf3e7;
   --purple: #7c3aed;
   --radius: 8px;
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --font:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
-  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --shadow: 0 1px 2px rgba(11, 27, 43, 0.07);
+  /* Font variables populated by next/font/local in layout.tsx */
+  --font: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-mono), "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+
+  /* Okabe-Ito palette — distinguishable under all common colour-vision deficiencies. */
+  --series-1: #0072B2;
+  --series-2: #D55E00;
+  --series-3: #009E73;
+  --series-4: #CC79A7;
+  --series-5: #E69F00;
+  --series-6: #56B4E9;
+  --series-7: #F0E442;
+  --series-8: #000000;
 }
 
 * {

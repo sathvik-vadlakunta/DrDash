@@ -32,14 +32,14 @@ export interface PanelBand {
 }
 
 export const CHART_COLORS = [
-  "#2563eb",
-  "#dc2626",
-  "#16a34a",
-  "#7c3aed",
-  "#ea580c",
-  "#0d9488",
-  "#db2777",
-  "#ca8a04",
+  "#0072B2",
+  "#D55E00",
+  "#009E73",
+  "#CC79A7",
+  "#E69F00",
+  "#56B4E9",
+  "#F0E442",
+  "#000000",
 ];
 
 function formatValue(v: number): string {
@@ -61,10 +61,12 @@ export function ChartPanel({
   series,
   bands = [],
   height = 420,
+  logScale = false,
 }: {
   series: PanelSeries[];
   bands?: PanelBand[];
   height?: number;
+  logScale?: boolean;
 }) {
   // Defensive dedupe: two entries with the same key would collide as React
   // keys and double the legend.
@@ -122,24 +124,28 @@ export function ChartPanel({
             scale="time"
             domain={[tMin, tMax]}
             tickFormatter={yearOf}
-            tick={{ fontSize: 11, fill: "#64748b" }}
+            tick={{ fontSize: 11, fill: "#56697B" }}
             tickCount={9}
           />
           <YAxis
             yAxisId="left"
+            scale={logScale ? "log" : "linear"}
             tickFormatter={formatValue}
-            tick={{ fontSize: 11, fill: "#64748b" }}
+            tick={{ fontSize: 11, fill: "#56697B" }}
             width={62}
-            domain={["auto", "auto"]}
+            domain={logScale ? ["auto", "auto"] : ["auto", "auto"]}
+            allowDataOverflow={logScale}
           />
           {rightClass && (
             <YAxis
               yAxisId="right"
               orientation="right"
+              scale={logScale ? "log" : "linear"}
               tickFormatter={formatValue}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "#56697B" }}
               width={62}
               domain={["auto", "auto"]}
+              allowDataOverflow={logScale}
             />
           )}
           {visibleBands.map((b, i) => (

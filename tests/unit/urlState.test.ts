@@ -18,6 +18,7 @@ describe("encode/decode round trip", () => {
         { id: "GDPC1", transform: "PER_CAPITA" },
       ],
       recessions: true,
+      logScale: false,
       from: "1960",
       to: "2024",
     };
@@ -29,6 +30,7 @@ describe("encode/decode round trip", () => {
     const qs = encodeChartState({
       series: [{ id: "GDP", transform: "LEVEL" }],
       recessions: false,
+      logScale: false,
     });
     expect(qs).toBe("s=GDP");
   });
@@ -83,6 +85,7 @@ describe("decodeChartStateFromUrl", () => {
     const href = dashboardHref({
       series: [{ id: "GDPC1", transform: "YOY_GROWTH" }],
       recessions: true,
+      logScale: false,
     });
     for (const url of [
       `https://drdash.example.com${href}`,

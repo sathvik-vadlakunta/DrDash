@@ -5,6 +5,7 @@
  * compact mode inside lesson TASK steps and statsbook figures.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
+import type { PanelSeries } from "./ChartPanel";
 import {
   TRANSFORM_LABELS,
   type TransformType,
@@ -22,6 +23,38 @@ import type { ChartSeriesState, ChartState } from "@/lib/dashboard/urlState";
 import { ChartPanel } from "./ChartPanel";
 
 const DENOMINATOR_OPTIONS = ["GDP", "GDPC1", "DSPI", "PCEC"];
+
+const DATE_PRESETS = [
+  { label: "1Y", years: 1 },
+  { label: "5Y", years: 5 },
+  { label: "10Y", years: 10 },
+  { label: "20Y", years: 20 },
+  { label: "All", years: null },
+];
+
+function downloadCsv(panelSeries: PanelSeries[], title: string | null) {
+  if (panelSeries.length === 0) return;
+  const allDates = [
+    ...new Set(panelSeries.flatMap((s) => s.points.map(([t]) => t))),
+  ].sort((a, b) => a - b);
+  const header = ["date", ...panelSeries.map((s) => s.label)].join(",");
+  const rows = allDates.map((t) => {
+    const d = new Date(t).toISOString().slice(0, 10);
+    const vals = panelSeries.map((s) => {
+      const pt = s.points.find(([pt]) => pt === t);
+      return pt !== undefined ? String(pt[1]) : "";
+    });
+    return [d, ...vals].join(",");
+  });
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title ?? "dr-dash-chart"}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export function ChartToolCore({
   value,
@@ -182,17 +215,39 @@ export function ChartToolCore({
     </div>
   );
 
+  const panelSeries = value.series
+    .map((s) => panels.get(seriesKey(s, value)))
+    .filter((p): p is NonNullable<typeof p> => !!p)
+    .map((p) => ({
+      key: p.key,
+      label: `${p.name} (${transformLabelForUI(p.transform)})`,
+      units: p.units,
+      unitClass: p.unitClass,
+      points: p.points,
+    }));
+
+  const currentYear = new Date().getFullYear();
+
   const controls = (
     <div className="chart-controls">
-      <label>
-        <input
-          type="checkbox"
-          checked={value.recessions}
-          onChange={(e) => onChange({ ...value, recessions: e.target.checked })}
-          data-testid={`${testIdPrefix}-recessions`}
-        />
-        Recession shading
-      </label>
+      <div style={{ display: "flex", gap: "0.3rem", alignItems: "center" }}>
+        {DATE_PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            className="btn btn-small"
+            onClick={() =>
+              onChange({
+                ...value,
+                from: p.years ? String(currentYear - p.years) : undefined,
+                to: undefined,
+              })
+            }
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
       <YearInput
         label="From"
         placeholder="1947"
@@ -205,26 +260,42 @@ export function ChartToolCore({
         value={value.to}
         onCommit={(to) => onChange({ ...value, to })}
       />
-      {loading && <span className="muted small">Loading data…</span>}
+      <label>
+        <input
+          type="checkbox"
+          checked={value.recessions}
+          onChange={(e) => onChange({ ...value, recessions: e.target.checked })}
+          data-testid={`${testIdPrefix}-recessions`}
+        />
+        Recessions
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={value.logScale}
+          onChange={(e) => onChange({ ...value, logScale: e.target.checked })}
+          data-testid={`${testIdPrefix}-logscale`}
+        />
+        Log scale
+      </label>
+      <button
+        type="button"
+        className="btn btn-small"
+        disabled={panelSeries.length === 0}
+        onClick={() => downloadCsv(panelSeries, null)}
+        data-testid={`${testIdPrefix}-csv`}
+      >
+        Download CSV
+      </button>
+      {loading && <span className="muted small">Loading…</span>}
       {errors.length > 0 && (
         <span className="error-text" role="alert">
-          Some data failed to load: {errors[errors.length - 1]}
+          {errors[errors.length - 1]}
         </span>
       )}
       {extraControls}
     </div>
   );
-
-  const panelSeries = value.series
-    .map((s) => panels.get(seriesKey(s, value)))
-    .filter((p): p is NonNullable<typeof p> => !!p)
-    .map((p) => ({
-      key: p.key,
-      label: `${p.name} (${transformLabelForUI(p.transform)})`,
-      units: p.units,
-      unitClass: p.unitClass,
-      points: p.points,
-    }));
 
   const chart = (
     <div className="chart-frame" data-testid={`${testIdPrefix}-panel`}>
@@ -232,6 +303,7 @@ export function ChartToolCore({
         series={panelSeries}
         bands={value.recessions ? bands : []}
         height={compact ? 300 : 440}
+        logScale={value.logScale}
       />
     </div>
   );
