@@ -1,17 +1,35 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { getSessionUser } from "@/lib/auth";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const displayFont = localFont({
+  src: [
+    { path: "../../public/fonts/SpaceGrotesk-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../../public/fonts/SpaceGrotesk-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-display",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const sansFont = localFont({
+  src: [
+    { path: "../../public/fonts/Inter-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../../public/fonts/Inter-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../../public/fonts/Inter-SemiBold.woff2", weight: "600", style: "normal" },
+  ],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const monoFont = localFont({
+  src: [
+    { path: "../../public/fonts/IBMPlexMono-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../../public/fonts/IBMPlexMono-Medium.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -31,15 +49,13 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${displayFont.variable} ${sansFont.variable} ${monoFont.variable}`}
     >
       <body>
         <a href="#main" className="skip-link">
           Skip to main content
         </a>
-        <Nav
-          user={user ? { name: user.name, role: user.role } : null}
-        />
+        <Nav user={user ? { name: user.name, role: user.role } : null} />
         <main id="main">{children}</main>
       </body>
     </html>

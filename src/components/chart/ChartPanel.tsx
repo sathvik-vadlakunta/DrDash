@@ -32,14 +32,14 @@ export interface PanelBand {
 }
 
 export const CHART_COLORS = [
-  "#E8715A",
-  "#5BA89A",
-  "#1C2240",
-  "#D4A020",
-  "#7C4DFF",
-  "#E91E63",
-  "#00ACC1",
-  "#43A047",
+  "#0072B2",
+  "#D55E00",
+  "#009E73",
+  "#CC79A7",
+  "#E69F00",
+  "#56B4E9",
+  "#F0E442",
+  "#000000",
 ];
 
 function formatValue(v: number): string {
@@ -117,21 +117,21 @@ export function ChartPanel({
     <div role="img" aria-label={`Chart of ${series.map((s) => s.label).join(", ")}`}>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 8, right: 12, left: 8, bottom: 4 }}>
-          <CartesianGrid stroke="rgba(28,34,64,0.07)" vertical={false} />
+          <CartesianGrid stroke="#eef2f7" vertical={false} />
           <XAxis
             dataKey="t"
             type="number"
             scale="time"
             domain={[tMin, tMax]}
             tickFormatter={yearOf}
-            tick={{ fontSize: 11, fill: "rgba(28,34,64,0.5)" }}
+            tick={{ fontSize: 11, fill: "#56697B" }}
             tickCount={9}
           />
           <YAxis
             yAxisId="left"
             scale={logScale ? "log" : "linear"}
             tickFormatter={formatValue}
-            tick={{ fontSize: 11, fill: "rgba(28,34,64,0.5)" }}
+            tick={{ fontSize: 11, fill: "#56697B" }}
             width={62}
             domain={logScale ? ["auto", "auto"] : ["auto", "auto"]}
             allowDataOverflow={logScale}
@@ -142,7 +142,7 @@ export function ChartPanel({
               orientation="right"
               scale={logScale ? "log" : "linear"}
               tickFormatter={formatValue}
-              tick={{ fontSize: 11, fill: "rgba(28,34,64,0.5)" }}
+              tick={{ fontSize: 11, fill: "#56697B" }}
               width={62}
               domain={["auto", "auto"]}
               allowDataOverflow={logScale}

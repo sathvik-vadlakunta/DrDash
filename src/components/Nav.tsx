@@ -30,7 +30,7 @@ export function Nav({
     <nav className="site-nav" aria-label="Main">
       <div className="nav-inner">
         <Link href="/" className="brand">
-          Dr.<span>Dash</span>
+          Dr. Dash
         </Link>
         {LINKS.map((l) => (
           <Link
