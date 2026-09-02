@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
@@ -46,11 +47,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const user = await getSessionUser();
+  const jar = await cookies();
+  const theme = jar.get("dd_theme")?.value === "dark" ? "dark" : undefined;
+
   return (
     <html
       lang="en"
+      data-theme={theme}
       className={`${displayFont.variable} ${sansFont.variable} ${monoFont.variable}`}
     >
+      <head>
+        {/* Apply theme from cookie before first paint to avoid flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=document.cookie.match(/dd_theme=(light|dark)/);if(t&&t[1]==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         <a href="#main" className="skip-link">
           Skip to main content

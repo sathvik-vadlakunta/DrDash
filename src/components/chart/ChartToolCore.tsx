@@ -210,6 +210,31 @@ export function ChartToolCore({
       points: p.points,
     }));
 
+  // Map panel key → original series index so the legend's × button can remove.
+  const removeByPanelKey = useCallback(
+    (key: string) => {
+      const idx = value.series.findIndex((s) => seriesKey(s, value) === key);
+      if (idx >= 0) removeSeries(idx);
+    },
+    [value, removeSeries]
+  );
+
+  // Warnings
+  const leftUnitClass = panelSeries[0]?.unitClass;
+  const leftSeries = panelSeries.filter((s) => s.unitClass === leftUnitClass);
+  const mixedUnitsWarning =
+    panelSeries.length > 1 &&
+    leftSeries.length > 1 &&
+    leftSeries.some((s) => s.units !== leftSeries[0].units);
+
+  const nonPositiveCount =
+    value.logScale
+      ? panelSeries.reduce(
+          (n, s) => n + s.points.filter(([, v]) => v <= 0).length,
+          0
+        )
+      : 0;
+
   const currentYear = new Date().getFullYear();
 
   // ── Compact mode (lessons / statsbook) ───────────────────────────────
@@ -325,6 +350,7 @@ export function ChartToolCore({
             bands={value.recessions ? bands : []}
             height={300}
             logScale={value.logScale}
+            onRemoveSeries={removeByPanelKey}
           />
         </div>
         <details style={{ marginTop: "0.5rem" }}>
@@ -525,6 +551,17 @@ export function ChartToolCore({
           {errors[errors.length - 1]}
         </span>
       )}
+      {mixedUnitsWarning && (
+        <span className="toolbar-warning" role="alert">
+          Mixed units on left axis — values may not be directly comparable.
+        </span>
+      )}
+      {nonPositiveCount > 0 && (
+        <span className="toolbar-warning" role="alert">
+          Log scale: {nonPositiveCount} non-positive value
+          {nonPositiveCount === 1 ? "" : "s"} hidden.
+        </span>
+      )}
     </div>
   );
 
@@ -614,6 +651,7 @@ export function ChartToolCore({
                 bands={value.recessions ? bands : []}
                 height={440}
                 logScale={value.logScale}
+                onRemoveSeries={removeByPanelKey}
               />
             </div>
           </>

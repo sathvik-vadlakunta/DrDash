@@ -137,6 +137,11 @@ code {
   white-space: nowrap;
   padding-right: 0.5rem;
 }
+.nav-theme-btn, .nav-shortcuts-btn {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 5px;
+}
 
 /* ── cards, buttons, tags ────────────────────────────────────────────── */
 .card {
@@ -794,4 +799,188 @@ table.data-table {
   z-index: 100;
   border-radius: 6px;
   border: 1px solid var(--accent);
+}
+
+/* ── Accessibility helpers ───────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Chart tooltip ───────────────────────────────────────────────────── */
+.chart-tooltip {
+  background: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(11, 27, 43, 0.1);
+  min-width: 160px;
+}
+.chart-tooltip-period {
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.9;
+}
+.chart-tooltip-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.chart-tooltip-lbl {
+  color: var(--ink-muted);
+  flex: 1;
+  font-size: 11.5px;
+}
+.chart-tooltip-val {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--ink);
+  margin-left: 8px;
+}
+
+/* ── Chart legend ────────────────────────────────────────────────────── */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.45rem 0.5rem 0.1rem;
+}
+.chart-legend-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--surface-sunken);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.78rem;
+  max-width: 260px;
+}
+.chart-legend-bar {
+  display: inline-block;
+  width: 16px;
+  height: 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.chart-legend-freq {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+  background: var(--band);
+  border-radius: 3px;
+  padding: 0 3px;
+  flex-shrink: 0;
+}
+.chart-legend-lbl {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.chart-legend-remove {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.1rem;
+  flex-shrink: 0;
+}
+.chart-legend-remove:hover { color: var(--danger); }
+
+/* ── Toolbar warnings ────────────────────────────────────────────────── */
+.toolbar-warning {
+  font-size: 0.78rem;
+  color: var(--warn);
+  background: var(--yellow-soft);
+  border-radius: 4px;
+  padding: 0.18rem 0.55rem;
+  white-space: nowrap;
+}
+
+/* ── Keyboard-shortcut dialog ────────────────────────────────────────── */
+dialog.shortcuts-dialog {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--ink);
+  padding: 1.5rem;
+  max-width: 480px;
+  width: calc(100vw - 2rem);
+  box-shadow: 0 8px 32px rgba(11, 27, 43, 0.15);
+}
+dialog.shortcuts-dialog::backdrop {
+  background: rgba(11, 27, 43, 0.4);
+}
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.88rem;
+}
+.shortcuts-grid kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: var(--surface-sunken);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --surface:        #0D1117;
+  --surface-sunken: #090C10;
+  --surface-raised: #161B22;
+  --ink:            #E6EDF3;
+  --ink-muted:      #8B949E;
+  --rule:           #21262D;
+  --rule-strong:    #30363D;
+  --band:           #1C2128;
+  --accent:         #3B9EDB;
+  --accent-hover:   #2F86C0;
+  --accent-ink:     #0D1117;
+  --focus:          #58A6FF;
+  --ok:             #3FB950;
+  --warn:           #D29922;
+  --danger:         #F85149;
+  --green-soft:     rgba(63, 185, 80, 0.1);
+  --red-soft:       rgba(248, 81, 73, 0.08);
+  --yellow-soft:    rgba(210, 153, 34, 0.1);
+}
+[data-theme="dark"] .cart-legend-chip { border-color: var(--rule); }
+[data-theme="dark"] .chart-tooltip {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .teaching-pre {
+  background: var(--surface-sunken);
+  border-color: var(--rule);
 }

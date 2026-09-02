@@ -97,7 +97,12 @@ export default async function CourseDetailPage({
   return (
     <div className="container">
       <div className="page-head">
-        <h1>{course.name}</h1>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", flexWrap: "wrap" }}>
+          <h1>{course.name}</h1>
+          <Link href={`/courses/${id}/gradebook`} className="btn btn-small">
+            Gradebook →
+          </Link>
+        </div>
         <p>
           Course code <code>{course.code}</code> · {course.enrollments.length}{" "}
           student{course.enrollments.length === 1 ? "" : "s"}
