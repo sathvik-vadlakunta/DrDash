@@ -4,7 +4,7 @@
  * The shared interactive chart builder. Used full-size on /dashboard and in
  * compact mode inside lesson TASK steps and statsbook figures.
  */
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PanelSeries } from "./ChartPanel";
 import { TRANSFORM_LABELS, type TransformType } from "@/lib/transforms";
 import {
@@ -241,6 +241,7 @@ export function ChartToolCore({
   if (compact) {
     return (
       <div>
+        {/* Series chips */}
         <div className="active-series">
           {value.series.map((s, i) => {
             const def = byId.get(s.id);
@@ -304,6 +305,8 @@ export function ChartToolCore({
             );
           })}
         </div>
+
+        {/* Controls: recession shading + date range */}
         <div className="chart-controls">
           <label>
             <input
@@ -314,36 +317,30 @@ export function ChartToolCore({
               }
               data-testid={`${testIdPrefix}-recessions`}
             />
-            Recessions
+            Recession shading
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={value.logScale}
-              onChange={(e) =>
-                onChange({ ...value, logScale: e.target.checked })
-              }
-              data-testid={`${testIdPrefix}-logscale`}
-            />
-            Log scale
-          </label>
-          <button
-            type="button"
-            className="btn btn-small"
-            disabled={panelSeries.length === 0}
-            onClick={() => downloadCsv(panelSeries, null)}
-            data-testid={`${testIdPrefix}-csv`}
-          >
-            Download CSV
-          </button>
-          {loading && <span className="muted small">Loading…</span>}
+          <YearInput
+            label="From"
+            placeholder="1947"
+            value={value.from}
+            onCommit={(from) => onChange({ ...value, from })}
+          />
+          <YearInput
+            label="To"
+            placeholder="now"
+            value={value.to}
+            onCommit={(to) => onChange({ ...value, to })}
+          />
+          {loading && <span className="muted small">Loading data…</span>}
           {errors.length > 0 && (
             <span className="error-text" role="alert">
-              {errors[errors.length - 1]}
+              Some data failed to load: {errors[errors.length - 1]}
             </span>
           )}
           {extraControls}
         </div>
+
+        {/* Chart */}
         <div className="chart-frame" data-testid={`${testIdPrefix}-panel`}>
           <ChartPanel
             series={panelSeries}
@@ -353,13 +350,15 @@ export function ChartToolCore({
             onRemoveSeries={removeByPanelKey}
           />
         </div>
+
+        {/* Series picker — all categories expanded in compact mode */}
         <details style={{ marginTop: "0.5rem" }}>
           <summary className="muted small" style={{ cursor: "pointer" }}>
             Add series
           </summary>
-          <div className="series-picker">
-            {categoriesToShow.map((cat, i) => (
-              <details key={cat.slug} open={i < 2}>
+          <div className="series-picker" data-testid={`${testIdPrefix}-picker`}>
+            {categoriesToShow.map((cat) => (
+              <details key={cat.slug} open>
                 <summary>{cat.label}</summary>
                 {cat.series.map((s) => (
                   <button
@@ -771,3 +770,42 @@ export function ChartToolCore({
 }
 
 export type { ChartState };
+
+/**
+ * Year input that only commits a complete 4-digit year (or empty) to chart
+ * state — partial keystrokes do not trigger fetches or bogus date filters.
+ */
+function YearInput({
+  label,
+  placeholder,
+  value,
+  onCommit,
+}: {
+  label: string;
+  placeholder: string;
+  value: string | undefined;
+  onCommit: (year: string | undefined) => void;
+}) {
+  const [draft, setDraft] = useState(value ?? "");
+  useEffect(() => { setDraft(value ?? ""); }, [value]);
+  return (
+    <label>
+      {label}
+      <input
+        type="number"
+        min={1850}
+        max={2030}
+        placeholder={placeholder}
+        value={draft}
+        onChange={(e) => {
+          const next = e.target.value;
+          setDraft(next);
+          if (next === "") onCommit(undefined);
+          else if (/^\d{4}$/.test(next)) onCommit(next);
+        }}
+        style={{ width: "5.2rem" }}
+        aria-label={`${label} year`}
+      />
+    </label>
+  );
+}
