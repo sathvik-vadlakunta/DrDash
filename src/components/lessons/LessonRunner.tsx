@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type {
   McStep,
@@ -71,6 +71,7 @@ export function LessonRunner({
   const [statuses, setStatuses] = useState(initialStatuses);
   const [score, setScore] = useState(initialScore);
   const [completed, setCompleted] = useState(initiallyCompleted);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Shared chart state — lives here so the right-panel chart persists across steps
   const [chart, setChart] = useState<ChartState>({
@@ -78,21 +79,6 @@ export function LessonRunner({
     recessions: false,
     logScale: false,
   });
-
-  // Union of all series IDs from lesson sources + every TASK target
-  const allowedSeriesIds = useMemo(() => {
-    const ids = new Set<string>(sources);
-    for (const step of steps) {
-      if (step.type === "TASK") {
-        for (const t of step.target.series) {
-          ids.add(t.id);
-          if (t.denominatorId) ids.add(t.denominatorId);
-        }
-      }
-    }
-    ids.delete("USREC"); // recession shading is a toggle, not a plottable series
-    return [...ids];
-  }, [steps, sources]);
 
   async function submitStep(
     stepId: string,
@@ -115,37 +101,38 @@ export function LessonRunner({
   }
 
   const doneCount = steps.filter((s) => statuses[s.id]?.done).length;
+  const step = steps[currentIndex];
+  const isFirst = currentIndex === 0;
+  const isLast = currentIndex === steps.length - 1;
 
   return (
     <div className="lesson-layout">
-      {/* ── Left sidebar: progress + step cards ── */}
+      {/* ── Left sidebar: one step at a time ── */}
       <div className="lesson-sidebar">
+        {/* Header */}
         <div className="lesson-sidebar-head">
-          <h1 className="lesson-title">{title}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+            <Link href="/lessons" className="btn btn-small">← Lessons</Link>
+            {completed && (
+              <span className="tag tag-green" data-testid="lesson-completed">Completed</span>
+            )}
+          </div>
+          <h2 className="lesson-title">{title}</h2>
           <p className="lesson-summary muted small">{summary}</p>
-
-          <div className="progress-banner" style={{ marginTop: "0.6rem" }}>
-            <strong data-testid="lesson-score" style={{ fontSize: "0.88rem" }}>
+          <div className="progress-banner" style={{ marginTop: "0.5rem" }}>
+            <strong data-testid="lesson-score" style={{ fontSize: "0.85rem" }}>
               {score}/{maxScore} pts
             </strong>
             <div className="progress-track" aria-hidden>
               <div
                 className="progress-fill"
-                style={{
-                  width: `${steps.length ? (doneCount / steps.length) * 100 : 0}%`,
-                }}
+                style={{ width: `${steps.length ? (doneCount / steps.length) * 100 : 0}%` }}
               />
             </div>
-            <span className="muted small">{doneCount}/{steps.length}</span>
-            {completed && (
-              <span className="tag tag-green" data-testid="lesson-completed">
-                Done
-              </span>
-            )}
+            <span className="muted small">{doneCount}/{steps.length} done</span>
           </div>
-
           {objectives.length > 0 && (
-            <details style={{ marginTop: "0.5rem" }}>
+            <details style={{ marginTop: "0.4rem" }}>
               <summary className="muted small" style={{ cursor: "pointer" }}>
                 Objectives &amp; series
               </summary>
@@ -164,37 +151,51 @@ export function LessonRunner({
           )}
         </div>
 
-        <div className="lesson-steps">
-          {steps.map((step, i) => (
-            <StepCard
-              key={step.id}
-              index={i + 1}
-              step={step}
-              status={statuses[step.id]}
-              chart={chart}
-              onStatus={(s) => setStatuses((prev) => ({ ...prev, [step.id]: s }))}
-              submit={(payload) => submitStep(step.id, payload)}
-            />
-          ))}
+        {/* Current step */}
+        <div className="lesson-step-view">
+          <StepCard
+            index={currentIndex + 1}
+            step={step}
+            status={statuses[step.id]}
+            chart={chart}
+            onStatus={(s) => setStatuses((prev) => ({ ...prev, [step.id]: s }))}
+            submit={(payload) => submitStep(step.id, payload)}
+          />
+        </div>
+
+        {/* Navigation */}
+        <div className="lesson-nav-bar">
+          <button
+            className="btn btn-small"
+            disabled={isFirst}
+            onClick={() => setCurrentIndex((i) => i - 1)}
+          >
+            ← Back
+          </button>
+          <span className="muted small">{currentIndex + 1} / {steps.length}</span>
+          <button
+            className="btn btn-small"
+            disabled={isLast}
+            onClick={() => setCurrentIndex((i) => i + 1)}
+          >
+            Next →
+          </button>
         </div>
       </div>
 
-      {/* ── Right main: persistent chart ── */}
+      {/* ── Right: full chart tool (catalog + chart + transforms) ── */}
       <div className="lesson-main">
         <ChartToolCore
           value={chart}
           onChange={setChart}
-          compact
-          allowedSeriesIds={allowedSeriesIds}
           testIdPrefix="lesson-chart"
-          chartHeight={500}
         />
       </div>
     </div>
   );
 }
 
-// ── Step cards ─────────────────────────────────────────────────────────────
+// ── Step card ──────────────────────────────────────────────────────────────
 
 function StepCard({
   index,
@@ -295,7 +296,7 @@ function ReadControls({
   );
 }
 
-// ── TASK — uses the shared chart in the right panel ────────────────────────
+// ── TASK — validates against the shared chart in the right panel ───────────
 
 function TaskControls({
   step,
@@ -327,8 +328,8 @@ function TaskControls({
 
   return (
     <div>
-      <p className="muted small" style={{ margin: "0.4rem 0 0.5rem" }}>
-        Build the chart in the panel on the right, then check it here.
+      <p className="muted small" style={{ margin: "0.4rem 0 0.6rem" }}>
+        Use the chart tool on the right to build your answer, then check it here.
       </p>
       <button
         className="btn btn-primary"
@@ -494,8 +495,7 @@ function McControls({
           if (res.error) return;
           if (res.correct || res.finalized) {
             onStatus({
-              done: true,
-              correct: res.correct ?? false,
+              done: true, correct: res.correct ?? false,
               pointsAwarded: res.pointsAwarded ?? 0,
               tries: res.triesUsed ?? 1,
               finalized: true,
