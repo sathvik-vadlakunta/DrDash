@@ -68,7 +68,7 @@ export function DashboardTool() {
           onClick={copyLink}
           data-testid="copy-link"
         >
-          {copied ? "Copied!" : "Copy shareable link"}
+          {copied ? "Copied!" : "Copy link"}
         </button>
       }
     />

@@ -275,6 +275,275 @@ table.data-table {
 .data-table td.na { color: var(--rule-strong); }
 
 /* ── chart tool ──────────────────────────────────────────────────────── */
+
+/* Full 3-panel dashboard (non-compact). Fills viewport below the 54px nav. */
+.dashboard-3panel {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  height: calc(100vh - 54px);
+  overflow: hidden;
+  background: var(--surface);
+}
+@media (max-width: 1100px) {
+  .dashboard-3panel { grid-template-columns: 240px 1fr; }
+  .transforms-panel { display: none; }
+}
+@media (max-width: 720px) {
+  .dashboard-3panel { grid-template-columns: 1fr; }
+  .catalog-panel { display: none; }
+}
+
+/* Left panel — catalog */
+.catalog-panel {
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+.catalog-tree {
+  border: none !important;
+  border-radius: 0 !important;
+  flex: 1;
+  max-height: none !important;
+}
+
+/* Right panel — transforms */
+.transforms-panel {
+  border-left: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+.transforms-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem 0;
+}
+.transform-row {
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.transform-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+.transform-series-name {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.transform-row select { font-size: 0.83rem; padding: 0.25rem 0.45rem; }
+
+/* Teaching copy */
+.teaching-copy {
+  padding: 0.8rem 0.9rem;
+  margin-top: 0.25rem;
+}
+.teaching-pre {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.7rem 0.8rem;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* Shared panel header */
+.panel-header {
+  padding: 0.6rem 0.9rem 0.55rem;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--surface-sunken);
+}
+
+/* Catalog search */
+.catalog-search {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 0.83rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  padding: 0.32rem 0.6rem;
+}
+.catalog-search:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+/* Series count badge in category headers */
+.series-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  font-family: var(--mono);
+  font-weight: 400;
+}
+.series-picker summary {
+  display: flex;
+  align-items: center;
+}
+
+/* "Apply To" scope toggle */
+.scope-toggle {
+  display: flex;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.scope-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  font-family: var(--font);
+  font-weight: 500;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.scope-btn + .scope-btn { border-left: 1px solid var(--rule-strong); }
+.scope-btn:hover { background: var(--surface-sunken); }
+.scope-btn-active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.scope-btn-active:hover { background: var(--accent-hover); }
+
+/* Center panel */
+.chart-center {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Toolbar */
+.chart-toolbar {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.4rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  background: var(--surface-sunken);
+  flex-shrink: 0;
+}
+.toolbar-presets { display: flex; gap: 0.25rem; }
+.toolbar-dates {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.toolbar-date-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+.toolbar-date-label span { white-space: nowrap; }
+.toolbar-date-input {
+  font-size: 0.78rem;
+  padding: 0.22rem 0.4rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 5px;
+  background: var(--card);
+  color: var(--ink);
+  width: auto;
+  font-family: var(--mono);
+}
+.toolbar-checks {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.toolbar-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.toolbar-checks input[type="checkbox"] { accent-color: var(--accent); }
+.toolbar-actions { display: flex; gap: 0.3rem; align-items: center; }
+.toolbar-spacer { margin-left: auto; }
+
+/* Chart body (scrollable area holding chips + frame) */
+.chart-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Color dot in chips and transform rows */
+.chip-color-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Series chips in full mode — div with selectable state */
+.series-chip-selected {
+  border-left-color: var(--accent) !important;
+  background: rgba(18, 80, 126, 0.06) !important;
+}
+
+/* Empty state */
+.chart-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 3rem 2rem;
+  text-align: center;
+  gap: 0.5rem;
+}
+.chart-empty-headline {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+.starter-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+.starter-btn {
+  font-size: 0.83rem;
+  padding: 0.35rem 0.85rem;
+}
+
+/* Compact chart layout (lessons / statsbook) */
 .chart-layout {
   display: grid;
   grid-template-columns: 280px 1fr;

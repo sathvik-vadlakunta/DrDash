@@ -11,18 +11,8 @@ export default async function DashboardPage() {
   if (!user) redirect("/login?next=/dashboard");
 
   return (
-    <div className="container">
-      <div className="page-head">
-        <h1>Chart Tool</h1>
-        <p>
-          Pick series from the catalog, apply transformations, toggle recession
-          shading, and copy a shareable link — the URL <em>is</em> your saved
-          dashboard.
-        </p>
-      </div>
-      <Suspense>
-        <DashboardTool />
-      </Suspense>
-    </div>
+    <Suspense>
+      <DashboardTool />
+    </Suspense>
   );
 }
