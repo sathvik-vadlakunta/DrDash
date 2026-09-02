@@ -58,8 +58,7 @@ export default async function LessonPage({
   }
 
   return (
-    <div className="container narrow">
-      <LessonRunner
+    <LessonRunner
         slug={lesson.slug}
         title={lesson.title}
         summary={lesson.summary}
@@ -71,6 +70,5 @@ export default async function LessonPage({
         maxScore={maxScore(content)}
         completed={progress?.status === "COMPLETED"}
       />
-    </div>
   );
 }

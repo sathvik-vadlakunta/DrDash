@@ -1,13 +1,5 @@
 "use client";
 
-/**
- * The interactive lesson player. Renders each step (READ / TASK / TASK_URL /
- * QUESTION_MC / QUESTION_TEXT), validates work locally for fast feedback, and
- * submits to the server (which is the source of truth for grading).
- *
- * Steps arrive answer-stripped: multiple-choice steps have no correctIndex or
- * explanation — those come back from the submit API once a question finalizes.
- */
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type {
@@ -80,12 +72,32 @@ export function LessonRunner({
   const [score, setScore] = useState(initialScore);
   const [completed, setCompleted] = useState(initiallyCompleted);
 
+  // Shared chart state — lives here so the right-panel chart persists across steps
+  const [chart, setChart] = useState<ChartState>({
+    series: [],
+    recessions: false,
+    logScale: false,
+  });
+
+  // Union of all series IDs from lesson sources + every TASK target
+  const allowedSeriesIds = useMemo(() => {
+    const ids = new Set<string>(sources);
+    for (const step of steps) {
+      if (step.type === "TASK") {
+        for (const t of step.target.series) {
+          ids.add(t.id);
+          if (t.denominatorId) ids.add(t.denominatorId);
+        }
+      }
+    }
+    ids.delete("USREC"); // recession shading is a toggle, not a plottable series
+    return [...ids];
+  }, [steps, sources]);
+
   async function submitStep(
     stepId: string,
     payload: Record<string, unknown>
   ): Promise<SubmitResponse> {
-    // Never throws: callers rely on this resolving so their busy flags reset
-    // even when the network drops mid-request.
     let body: SubmitResponse;
     try {
       const res = await fetch(`/api/v1/lessons/${slug}/submit`, {
@@ -105,100 +117,107 @@ export function LessonRunner({
   const doneCount = steps.filter((s) => statuses[s.id]?.done).length;
 
   return (
-    <div>
-      <div className="page-head">
-        <h1>{title}</h1>
-        <p>{summary}</p>
-      </div>
+    <div className="lesson-layout">
+      {/* ── Left sidebar: progress + step cards ── */}
+      <div className="lesson-sidebar">
+        <div className="lesson-sidebar-head">
+          <h1 className="lesson-title">{title}</h1>
+          <p className="lesson-summary muted small">{summary}</p>
 
-      <div className="card" style={{ marginBottom: "1rem" }}>
-        <div className="progress-banner">
-          <strong data-testid="lesson-score">
-            {score}/{maxScore} pts
-          </strong>
-          <div className="progress-track" aria-hidden>
-            <div
-              className="progress-fill"
-              style={{ width: `${steps.length ? (doneCount / steps.length) * 100 : 0}%` }}
-            />
+          <div className="progress-banner" style={{ marginTop: "0.6rem" }}>
+            <strong data-testid="lesson-score" style={{ fontSize: "0.88rem" }}>
+              {score}/{maxScore} pts
+            </strong>
+            <div className="progress-track" aria-hidden>
+              <div
+                className="progress-fill"
+                style={{
+                  width: `${steps.length ? (doneCount / steps.length) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <span className="muted small">{doneCount}/{steps.length}</span>
+            {completed && (
+              <span className="tag tag-green" data-testid="lesson-completed">
+                Done
+              </span>
+            )}
           </div>
-          <span className="muted small">
-            {doneCount}/{steps.length} steps
-          </span>
-          {completed && (
-            <span className="tag tag-green" data-testid="lesson-completed">
-              Lesson completed
-            </span>
+
+          {objectives.length > 0 && (
+            <details style={{ marginTop: "0.5rem" }}>
+              <summary className="muted small" style={{ cursor: "pointer" }}>
+                Objectives &amp; series
+              </summary>
+              <ul className="small" style={{ margin: "0.4rem 0 0", paddingLeft: "1.1rem" }}>
+                {objectives.map((o) => <li key={o}>{o}</li>)}
+              </ul>
+              {sources.length > 0 && (
+                <p className="small muted" style={{ margin: "0.3rem 0 0" }}>
+                  Series:{" "}
+                  {sources.map((s, i) => (
+                    <span key={s}>{i > 0 && ", "}<code>{s}</code></span>
+                  ))}
+                </p>
+              )}
+            </details>
           )}
         </div>
-        <details style={{ marginTop: "0.6rem" }}>
-          <summary className="muted small" style={{ cursor: "pointer" }}>
-            Objectives &amp; data series
-          </summary>
-          <ul className="small" style={{ margin: "0.5rem 0" }}>
-            {objectives.map((o) => (
-              <li key={o}>{o}</li>
-            ))}
-          </ul>
-          {sources.length > 0 && (
-            <p className="small muted" style={{ margin: 0 }}>
-              Series:{" "}
-              {sources.map((s, i) => (
-                <span key={s}>
-                  {i > 0 && ", "}
-                  <code>{s}</code>
-                </span>
-              ))}
-            </p>
-          )}
-        </details>
+
+        <div className="lesson-steps">
+          {steps.map((step, i) => (
+            <StepCard
+              key={step.id}
+              index={i + 1}
+              step={step}
+              status={statuses[step.id]}
+              chart={chart}
+              onStatus={(s) => setStatuses((prev) => ({ ...prev, [step.id]: s }))}
+              submit={(payload) => submitStep(step.id, payload)}
+            />
+          ))}
+        </div>
       </div>
 
-      {steps.map((step, i) => (
-        <StepCard
-          key={step.id}
-          index={i + 1}
-          step={step}
-          status={statuses[step.id]}
-          sources={sources}
-          onStatus={(s) =>
-            setStatuses((prev) => ({ ...prev, [step.id]: s }))
-          }
-          submit={(payload) => submitStep(step.id, payload)}
+      {/* ── Right main: persistent chart ── */}
+      <div className="lesson-main">
+        <ChartToolCore
+          value={chart}
+          onChange={setChart}
+          compact
+          allowedSeriesIds={allowedSeriesIds}
+          testIdPrefix="lesson-chart"
+          chartHeight={500}
         />
-      ))}
+      </div>
     </div>
   );
 }
 
-// ── individual steps ───────────────────────────────────────────────────────
+// ── Step cards ─────────────────────────────────────────────────────────────
 
 function StepCard({
   index,
   step,
   status,
-  sources,
+  chart,
   onStatus,
   submit,
 }: {
   index: number;
   step: ClientStep;
   status: StepStatus | undefined;
-  sources: string[];
+  chart: ChartState;
   onStatus: (s: StepStatus) => void;
   submit: (payload: Record<string, unknown>) => Promise<SubmitResponse>;
 }) {
   const done = status?.done ?? false;
-  const typeTag =
-    step.type === "READ"
-      ? "Read"
-      : step.type === "TASK"
-        ? "Chart task"
-        : step.type === "TASK_URL"
-          ? "Dashboard link"
-          : step.type === "QUESTION_MC"
-            ? "Question"
-            : "Written response";
+  const typeLabel =
+    step.type === "READ" ? "Read"
+    : step.type === "TASK" ? "Chart task"
+    : step.type === "TASK_URL" ? "Dashboard link"
+    : step.type === "QUESTION_MC" ? "Question"
+    : "Written response";
 
   return (
     <section
@@ -207,34 +226,28 @@ function StepCard({
       aria-label={`Step ${index}: ${step.title}`}
     >
       <div className="step-head">
-        <span className="tag tag-blue">{typeTag}</span>
-        <h3>
-          {index}. {step.title}
-        </h3>
+        <span className="tag tag-blue">{typeLabel}</span>
+        <h3>{index}. {step.title}</h3>
         {done && (
           <span className="tag tag-green" data-testid={`step-${step.id}-done`}>
-            {step.type === "QUESTION_MC" && status?.correct === false
-              ? `0/${"points" in step ? step.points : 0} pts`
+            {"points" in step && step.type === "QUESTION_MC" && status?.correct === false
+              ? `0/${step.points} pts`
               : "points" in step
-                ? `${status?.pointsAwarded ?? 0}/${step.points} pts`
-                : "Done"}
+              ? `${status?.pointsAwarded ?? 0}/${step.points} pts`
+              : "Done"}
           </span>
         )}
       </div>
       <div className="step-body">{step.body}</div>
-      {"hint" in step && step.hint && <div className="step-hint">💡 {step.hint}</div>}
+      {"hint" in step && step.hint && (
+        <div className="step-hint">💡 {step.hint}</div>
+      )}
 
       {step.type === "READ" && (
         <ReadControls step={step} status={status} onStatus={onStatus} submit={submit} />
       )}
       {step.type === "TASK" && (
-        <TaskControls
-          step={step}
-          status={status}
-          sources={sources}
-          onStatus={onStatus}
-          submit={submit}
-        />
+        <TaskControls step={step} status={status} chart={chart} onStatus={onStatus} submit={submit} />
       )}
       {step.type === "TASK_URL" && (
         <UrlControls step={step} status={status} onStatus={onStatus} submit={submit} />
@@ -248,6 +261,8 @@ function StepCard({
     </section>
   );
 }
+
+// ── READ ───────────────────────────────────────────────────────────────────
 
 function ReadControls({
   step,
@@ -271,9 +286,8 @@ function ReadControls({
         setBusy(true);
         const res = await submit({});
         setBusy(false);
-        if (!res.error) {
+        if (!res.error)
           onStatus({ done: true, pointsAwarded: 0, tries: 1, finalized: true });
-        }
       }}
     >
       Mark as read
@@ -281,37 +295,28 @@ function ReadControls({
   );
 }
 
+// ── TASK — uses the shared chart in the right panel ────────────────────────
+
 function TaskControls({
   step,
   status,
-  sources,
+  chart,
   onStatus,
   submit,
 }: {
   step: TaskStep;
   status?: StepStatus;
-  sources: string[];
+  chart: ChartState;
   onStatus: (s: StepStatus) => void;
   submit: (p: Record<string, unknown>) => Promise<SubmitResponse>;
 }) {
-  const allowedIds = useMemo(() => {
-    const ids = new Set<string>(sources);
-    for (const t of step.target.series) {
-      ids.add(t.id);
-      if (t.denominatorId) ids.add(t.denominatorId);
-    }
-    ids.delete("USREC"); // shading is a toggle, not a plottable series
-    return [...ids];
-  }, [sources, step.target.series]);
-
-  const [chart, setChart] = useState<ChartState>({ series: [], recessions: false, logScale: false });
   const [feedback, setFeedback] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
 
   if (status?.done) {
     return (
       <p className="feedback good" data-testid={`step-${step.id}-feedback`}>
-        Chart target met. Nicely done — feel free to keep exploring in the{" "}
+        Chart target met. Keep exploring in the{" "}
         <Link href={dashboardHref({ series: step.target.series, recessions: !!step.target.recessions, logScale: false })}>
           full Chart Tool
         </Link>
@@ -322,64 +327,44 @@ function TaskControls({
 
   return (
     <div>
-      <ChartToolCore
-        value={chart}
-        onChange={(next) => {
-          setChart(next);
-          setFeedback(null);
+      <p className="muted small" style={{ margin: "0.4rem 0 0.5rem" }}>
+        Build the chart in the panel on the right, then check it here.
+      </p>
+      <button
+        className="btn btn-primary"
+        disabled={busy}
+        data-testid={`step-${step.id}-check`}
+        onClick={async () => {
+          const local = validateChartTarget(step.target, {
+            series: chart.series,
+            recessions: chart.recessions,
+          });
+          if (!local.ok) { setFeedback(local.missing); return; }
+          setBusy(true);
+          const res = await submit({ state: { series: chart.series, recessions: chart.recessions } });
+          setBusy(false);
+          if (res.ok) {
+            onStatus({ done: true, pointsAwarded: res.pointsAwarded ?? step.points, tries: 1, finalized: true });
+          } else {
+            setFeedback(res.missing ?? [res.error ?? "Check failed"]);
+          }
         }}
-        compact
-        allowedSeriesIds={allowedIds}
-        testIdPrefix={`task-${step.id}`}
-      />
-      <div style={{ marginTop: "0.6rem" }}>
-        <button
-          className="btn btn-primary"
-          disabled={busy}
-          data-testid={`step-${step.id}-check`}
-          onClick={async () => {
-            // Fast local check first, then the server confirms and records.
-            const local = validateChartTarget(step.target, {
-              series: chart.series,
-              recessions: chart.recessions,
-            });
-            if (!local.ok) {
-              setFeedback(local.missing);
-              return;
-            }
-            setBusy(true);
-            const res = await submit({
-              state: { series: chart.series, recessions: chart.recessions },
-            });
-            setBusy(false);
-            if (res.ok) {
-              onStatus({
-                done: true,
-                pointsAwarded: res.pointsAwarded ?? step.points,
-                tries: 1,
-                finalized: true,
-              });
-            } else {
-              setFeedback(res.missing ?? [res.error ?? "Check failed"]);
-            }
-          }}
-        >
-          Check my chart
-        </button>
-      </div>
+      >
+        Check my chart
+      </button>
       {feedback && (
         <div className="feedback bad" data-testid={`step-${step.id}-feedback`}>
           Not quite yet:
           <ul style={{ margin: "0.3rem 0 0 1.2rem" }}>
-            {feedback.map((m) => (
-              <li key={m}>{m}</li>
-            ))}
+            {feedback.map((m) => <li key={m}>{m}</li>)}
           </ul>
         </div>
       )}
     </div>
   );
 }
+
+// ── TASK_URL ───────────────────────────────────────────────────────────────
 
 function UrlControls({
   step,
@@ -424,12 +409,7 @@ function UrlControls({
           const res = await submit({ url });
           setBusy(false);
           if (res.ok) {
-            onStatus({
-              done: true,
-              pointsAwarded: res.pointsAwarded ?? step.points,
-              tries: 1,
-              finalized: true,
-            });
+            onStatus({ done: true, pointsAwarded: res.pointsAwarded ?? step.points, tries: 1, finalized: true });
           } else {
             setFeedback(res.missing ?? [res.error ?? "Submission failed"]);
           }
@@ -440,15 +420,15 @@ function UrlControls({
       {feedback && (
         <div className="feedback bad" data-testid={`step-${step.id}-feedback`}>
           <ul style={{ margin: "0 0 0 1.2rem" }}>
-            {feedback.map((m) => (
-              <li key={m}>{m}</li>
-            ))}
+            {feedback.map((m) => <li key={m}>{m}</li>)}
           </ul>
         </div>
       )}
     </div>
   );
 }
+
+// ── QUESTION_MC ────────────────────────────────────────────────────────────
 
 function McControls({
   step,
@@ -466,20 +446,13 @@ function McControls({
   const [lastWrong, setLastWrong] = useState<number | null>(null);
   const [triesLeft, setTriesLeft] = useState(step.tries - (status?.tries ?? 0));
 
-  const finalized = status?.finalized ?? false;
-
-  if (finalized) {
+  if (status?.finalized) {
     return (
       <div>
-        <div
-          className={`feedback ${status?.correct ? "good" : "bad"}`}
-          data-testid={`step-${step.id}-feedback`}
-        >
-          {status?.correct
-            ? "Correct!"
-            : "Out of tries — see the explanation below."}
+        <div className={`feedback ${status.correct ? "good" : "bad"}`} data-testid={`step-${step.id}-feedback`}>
+          {status.correct ? "Correct!" : "Out of tries — see the explanation below."}
         </div>
-        {status?.explanation && (
+        {status.explanation && (
           <div className="feedback info" data-testid={`step-${step.id}-explanation`}>
             {status.explanation}
           </div>
@@ -541,6 +514,8 @@ function McControls({
   );
 }
 
+// ── QUESTION_TEXT ──────────────────────────────────────────────────────────
+
 function TextControls({
   step,
   status,
@@ -563,7 +538,7 @@ function TextControls({
           Response recorded for instructor review.
         </div>
         {status.textResponse && (
-          <blockquote className="muted small" style={{ whiteSpace: "pre-line" }}>
+          <blockquote className="muted small" style={{ whiteSpace: "pre-line", margin: "0.4rem 0 0" }}>
             {status.textResponse}
           </blockquote>
         )}
@@ -589,13 +564,7 @@ function TextControls({
             const res = await submit({ text });
             setBusy(false);
             if (res.ok) {
-              onStatus({
-                done: true,
-                pointsAwarded: res.pointsAwarded ?? step.points,
-                tries: 1,
-                finalized: true,
-                textResponse: text,
-              });
+              onStatus({ done: true, pointsAwarded: res.pointsAwarded ?? step.points, tries: 1, finalized: true, textResponse: text });
             } else {
               setMessage(res.message ?? res.error ?? "Submission failed");
             }

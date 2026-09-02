@@ -112,6 +112,7 @@ export function ChartToolCore({
   allowedSeriesIds,
   testIdPrefix = "chart",
   extraControls,
+  chartHeight,
 }: {
   value: ChartState;
   onChange: (next: ChartState) => void;
@@ -119,6 +120,7 @@ export function ChartToolCore({
   allowedSeriesIds?: string[];
   testIdPrefix?: string;
   extraControls?: React.ReactNode;
+  chartHeight?: number;
 }) {
   const catalog = useCatalog();
   const bands = useRecessionBands(value.recessions);
@@ -345,7 +347,7 @@ export function ChartToolCore({
           <ChartPanel
             series={panelSeries}
             bands={value.recessions ? bands : []}
-            height={300}
+            height={chartHeight ?? 300}
             logScale={value.logScale}
             onRemoveSeries={removeByPanelKey}
           />
