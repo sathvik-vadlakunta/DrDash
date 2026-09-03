@@ -129,6 +129,15 @@ export function ChartToolCore({
   const [search, setSearch] = useState("");
   const [applyScope, setApplyScope] = useState<"all" | "selected">("all");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [hiddenKeys, setHiddenKeys] = useState<Set<string>>(new Set());
+
+  const toggleHidden = useCallback((key: string) => {
+    setHiddenKeys((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }, []);
 
   const allSeries: CatalogSeries[] = useMemo(
     () => (catalog ? catalog.flatMap((c) => c.series) : []),
@@ -212,6 +221,8 @@ export function ChartToolCore({
       points: p.points,
     }));
 
+  const visibleSeries = panelSeries.filter((p) => !hiddenKeys.has(p.key));
+
   // Map panel key → original series index so the legend's × button can remove.
   const removeByPanelKey = useCallback(
     (key: string) => {
@@ -246,6 +257,8 @@ export function ChartToolCore({
         {/* Series chips */}
         <div className="active-series">
           {value.series.map((s, i) => {
+            const key = seriesKey(s, value);
+            const hidden = hiddenKeys.has(key);
             const def = byId.get(s.id);
             const transforms = def?.transforms ?? (["LEVEL"] as TransformType[]);
             return (
@@ -253,6 +266,7 @@ export function ChartToolCore({
                 className="series-chip"
                 key={`${s.id}-${i}`}
                 data-testid={`${testIdPrefix}-chip-${s.id}`}
+                style={hidden ? { opacity: 0.45 } : undefined}
               >
                 <span className="chip-name">
                   {def?.name ?? s.id}{" "}
@@ -293,6 +307,18 @@ export function ChartToolCore({
                       ))}
                     </select>
                   </label>
+                )}
+                {value.series.length > 1 && (
+                  <button
+                    type="button"
+                    className="remove"
+                    onClick={() => toggleHidden(key)}
+                    aria-label={hidden ? `Show ${s.id}` : `Hide ${s.id}`}
+                    title={hidden ? "Show" : "Hide"}
+                    style={{ fontSize: "0.7rem", opacity: hidden ? 1 : 0.6 }}
+                  >
+                    {hidden ? "show" : "hide"}
+                  </button>
                 )}
                 <button
                   type="button"
@@ -345,7 +371,7 @@ export function ChartToolCore({
         {/* Chart */}
         <div className="chart-frame" data-testid={`${testIdPrefix}-panel`}>
           <ChartPanel
-            series={panelSeries}
+            series={visibleSeries}
             bands={value.recessions ? bands : []}
             height={chartHeight ?? 300}
             logScale={value.logScale}
@@ -604,6 +630,8 @@ export function ChartToolCore({
               style={{ padding: "0.5rem 0.6rem 0", margin: 0 }}
             >
               {value.series.map((s, i) => {
+                const key = seriesKey(s, value);
+                const hidden = hiddenKeys.has(key);
                 const def = byId.get(s.id);
                 return (
                   <div
@@ -613,7 +641,7 @@ export function ChartToolCore({
                     onClick={() =>
                       setSelectedIndex(selectedIndex === i ? null : i)
                     }
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", ...(hidden ? { opacity: 0.45 } : {}) }}
                   >
                     <span
                       className="chip-color-dot"
@@ -625,6 +653,21 @@ export function ChartToolCore({
                       {def?.name ?? s.id}{" "}
                       <span className="fred-id">{s.id}</span>
                     </span>
+                    {value.series.length > 1 && (
+                      <button
+                        type="button"
+                        className="remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleHidden(key);
+                        }}
+                        aria-label={hidden ? `Show ${s.id}` : `Hide ${s.id}`}
+                        title={hidden ? "Show" : "Hide"}
+                        style={{ fontSize: "0.7rem", opacity: hidden ? 1 : 0.6 }}
+                      >
+                        {hidden ? "show" : "hide"}
+                      </button>
+                    )}
                     <button
                       type="button"
                       className="remove"
@@ -648,7 +691,7 @@ export function ChartToolCore({
               style={{ flex: 1, margin: "0.5rem 0.6rem" }}
             >
               <ChartPanel
-                series={panelSeries}
+                series={visibleSeries}
                 bands={value.recessions ? bands : []}
                 height={440}
                 logScale={value.logScale}
