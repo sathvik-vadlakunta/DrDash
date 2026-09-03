@@ -309,16 +309,14 @@ export function ChartToolCore({
                   </label>
                 )}
                 {value.series.length > 1 && (
-                  <button
-                    type="button"
-                    className="remove"
-                    onClick={() => toggleHidden(key)}
+                  <input
+                    type="checkbox"
+                    checked={!hidden}
+                    onChange={() => toggleHidden(key)}
                     aria-label={hidden ? `Show ${s.id}` : `Hide ${s.id}`}
                     title={hidden ? "Show" : "Hide"}
-                    style={{ fontSize: "0.7rem", opacity: hidden ? 1 : 0.6 }}
-                  >
-                    {hidden ? "show" : "hide"}
-                  </button>
+                    style={{ margin: "0 2px", cursor: "pointer" }}
+                  />
                 )}
                 <button
                   type="button"
@@ -654,19 +652,18 @@ export function ChartToolCore({
                       <span className="fred-id">{s.id}</span>
                     </span>
                     {value.series.length > 1 && (
-                      <button
-                        type="button"
-                        className="remove"
-                        onClick={(e) => {
+                      <input
+                        type="checkbox"
+                        checked={!hidden}
+                        onChange={(e) => {
                           e.stopPropagation();
                           toggleHidden(key);
                         }}
+                        onClick={(e) => e.stopPropagation()}
                         aria-label={hidden ? `Show ${s.id}` : `Hide ${s.id}`}
                         title={hidden ? "Show" : "Hide"}
-                        style={{ fontSize: "0.7rem", opacity: hidden ? 1 : 0.6 }}
-                      >
-                        {hidden ? "show" : "hide"}
-                      </button>
+                        style={{ margin: "0 2px", cursor: "pointer" }}
+                      />
                     )}
                     <button
                       type="button"
